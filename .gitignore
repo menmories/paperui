@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+*.pdb
+.vs
+Output/Win64/Temp/
+paperui.zip
+

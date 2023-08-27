@@ -131,14 +131,6 @@ void paper_vector_pop_back(struct paper_vector* vec, void* data)
     vec->element_count--;
 }
 
-//void paper_vector_pop_back_ptr(struct paper_vector* vec, void** data)
-//{
-//	assert(vec->element_count > 0);
-//	uint32 cur_size = vec->element_size * (vec->element_count - 1);
-//    *data = vec->block + cur_size;
-//	vec->element_count--;
-//}
-
 void paper_vector_free(struct paper_vector* vec)
 {
     free(vec->block);
