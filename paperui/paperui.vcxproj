@@ -147,6 +147,8 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="paper_builder.cpp" />
+    <ClCompile Include="paper_elememt.c" />
+    <ClCompile Include="paper_event.c" />
     <ClCompile Include="paper_memorypool.c" />
     <ClCompile Include="paper_render.cpp" />
     <ClCompile Include="paper_vector.c" />
@@ -158,6 +160,7 @@
     <ClInclude Include="paper_builder.h" />
     <ClInclude Include="paper_define.h" />
     <ClInclude Include="paper_elememt.h" />
+    <ClInclude Include="paper_event.h" />
     <ClInclude Include="paper_memorypool.h" />
     <ClInclude Include="paper_render.h" />
     <ClInclude Include="paper_vector.h" />

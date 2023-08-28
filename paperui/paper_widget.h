@@ -48,11 +48,12 @@ extern "C"
 
 
 	//äÖÈ¾¶ÓÁĞ
-	void paper_widget_paint_all(struct paper_widget_queue* widget_queue);
+	void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue);
 	struct paper_widget_queue* paper_widget_queue_create();
 	void paper_widget_queue_add(struct paper_widget_queue* widget_queue, struct paper_widget* widget);
 	void paper_widget_queue_free(struct paper_widget_queue* widget_queue);
 	void paper_widget_queue_clear(struct paper_widget_queue* widget_queue);
+
 #ifdef __cplusplus
 }
 #endif	//__cplusplus

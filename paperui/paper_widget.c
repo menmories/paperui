@@ -61,7 +61,7 @@ void paper_widget_free(struct paper_widget* widget)
 	free(widget);
 }
 
-void paper_widget_paint_all(struct paper_widget_queue* widget_queue)
+void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue)
 {
 	struct paper_widget* p = widget_queue->head;
 	while (p)

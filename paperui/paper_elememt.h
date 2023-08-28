@@ -32,6 +32,20 @@ extern "C"
 		float a;
 	};
 
+	void paper_rect_set_width(struct paper_rect* rect, int32 width);
+
+	int32 paper_rect_get_width(struct paper_rect* rect);
+
+	int32 paper_rect_get_height(struct paper_rect* rect);
+
+	void paper_rect_set_height(struct paper_rect* rect, int32 height);
+
+	void paper_rect_set_size(struct paper_rect* rect, int32 width, int32 height);
+
+	void paper_rect_set_pos(struct paper_rect* rect, int32 x, int32 y);
+
+	
+
 #ifdef __cplusplus
 }
 #endif

@@ -17,6 +17,8 @@
 #include "paper_render.h"
 #include "paper_builder.h"
 
+#include "paper_event.h"
+
 //gdi+来绘制一张图片
 using namespace Gdiplus;
 
@@ -86,15 +88,14 @@ int main(int argc, char** argv)
     paper_render_initenv();         //初始化paper渲染器环境
     window = paper_window_create(TEXT("你好呀"), WndProc, 100, 100, window_width, window_height);
     paper_window_show(window);
-    //窗口消息事件循环
-    MSG msg = { 0 };
-    while (GetMessage(&msg, nullptr, 0, 0))
+
+    struct paper_event e;
+    while (paper_event_run(&e))
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);      //WM_QUIT
+        //do something
     }
     paper_render_destroyenv();
-    return (int)msg.wParam;
+    return e.code;
 }
 
 
@@ -147,6 +148,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         window_width = LOWORD(lParam);
         window_height = HIWORD(lParam);
         paper_render_resize(render, window_width, window_height);
+        paper_rect_set_size(&builder->image_rect, window_width, window_height);
         return FALSE;
     }
     if (uMsg == WM_ERASEBKGND)
@@ -157,7 +159,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
         
 		render = paper_render_create(hWnd, window_width, window_height);
-        builder = paper_builder_load(render, "E:\\GitHub\\paperui\\Output\\Win64\\window.xml", Load_XML);
+        //builder = paper_builder_load(render, "E:\\GitHub\\paperui\\Output\\Win64\\window.xml", Load_XML);
+        builder = paper_builder_load(render, "window.xml", Load_XML);
         if (!builder)
         {
             fprintf(stderr, "paper_builder_load 失败\n");
@@ -166,7 +169,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
 			struct paper_window* win = paper_window_native_fromhandle((HWND)hWnd);
 			paper_window_set_pos(win, builder->x, builder->y);
-			paper_window_set_size(win, builder->width, builder->height);
+			//paper_window_set_size(win, builder->width, builder->height);
+            //paper_window_set_pos(win, 0, 0);
+			uint32 width = builder->image_rect.right - builder->image_rect.left;
+			uint32 height = builder->image_rect.bottom - builder->image_rect.top;
+
+            paper_rect_set_pos(&builder->image_rect, 0, 0);
+
+            paper_window_set_size(win, width, height);
 			paper_window_free(win);
 			//backgroundImage = paper_image_load_from_file(render, "98146720_p0_master1200.jpg");
         }
