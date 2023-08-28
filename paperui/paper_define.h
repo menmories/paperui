@@ -7,6 +7,9 @@
 extern "C"
 {
 #endif
+#ifdef _MSC_VER
+#include <tchar.h>
+#endif
 
 #ifdef _WIN64
 	typedef int32_t int32;
@@ -27,6 +30,13 @@ extern "C"
 	typedef uint16_t uint16;
 	typedef uint8_t  uint8;
 #endif
+
+#ifdef PACKAGE_DLL
+#define PAPER_API __declspec(dllexport)
+#else
+#define PAPER_API
+#endif
+
 
 
 #ifdef __cplusplus

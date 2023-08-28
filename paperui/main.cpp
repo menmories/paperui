@@ -113,13 +113,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         struct paper_color color = {0.1f, 1.0f, 1.0f, 1.0f};
         paper_render_begin_draw(render);
         paper_render_clear(render, &color);
-        paper_render_draw_image(render, builder->image, 
+        struct paper_render* compatible_render = paper_render_create_compatible(render);
+
+        paper_render_begin_draw(compatible_render);
+        //paper_brush_set_opacity(builder->image_brush, 0.5f);
+        paper_render_fill_rectangle(render, &builder->image_rect, builder->image_brush);
+        paper_render_draw_image(compatible_render, builder->image,
             builder->image_rect.left, 
             builder->image_rect.top, 
             builder->image_rect.right - builder->image_rect.left,
             builder->image_rect.bottom - builder->image_rect.top);
 
+        paper_render_end_draw(compatible_render);
+        struct paper_image* image = paper_image_get_from_render(compatible_render);
+        paper_render_draw_image(render, image, 0, 0, window_width, window_height);
         paper_render_end_draw(render);
+        paper_render_free(compatible_render);
         return FALSE;
     }
     if (uMsg == WM_CLOSE)
@@ -129,6 +138,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     if (uMsg == WM_DESTROY)
     {
+        paper_render_free(render);
         PostQuitMessage(0);
         return FALSE;
     }
@@ -147,16 +157,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
         
 		render = paper_render_create(hWnd, window_width, window_height);
-        builder = paper_builder_load(render, "window.xml", Load_XML);
+        builder = paper_builder_load(render, "E:\\GitHub\\paperui\\Output\\Win64\\window.xml", Load_XML);
         if (!builder)
         {
             fprintf(stderr, "paper_builder_load 失败\n");
         }
-        struct paper_window* win = paper_window_native_fromhandle((HWND)hWnd);
-        paper_window_set_pos(win, builder->x, builder->y);
-        paper_window_set_size(win, builder->width, builder->height);
-        paper_window_free(win);
-		//backgroundImage = paper_image_load_from_file(render, "98146720_p0_master1200.jpg");
+        else
+        {
+			struct paper_window* win = paper_window_native_fromhandle((HWND)hWnd);
+			paper_window_set_pos(win, builder->x, builder->y);
+			paper_window_set_size(win, builder->width, builder->height);
+			paper_window_free(win);
+			//backgroundImage = paper_image_load_from_file(render, "98146720_p0_master1200.jpg");
+        }
+        
 		return FALSE;
 	}
     return ::DefWindowProc(hWnd, uMsg, wParam, lParam);     //默认处理窗口回调函数

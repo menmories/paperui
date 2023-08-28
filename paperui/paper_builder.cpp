@@ -30,18 +30,22 @@ struct paper_builder* paper_builder_load(struct paper_render* render, const char
 		pugi::xml_node node_image = node_body.child("Img");
 		std::string src = node_image.attribute("src").as_string();
 
-
-		builder->image = paper_image_load_from_file(render, src.c_str());
-		if (!builder->image)
-		{
-			fprintf(stderr, "加载图片文件失败，文件名：%s\n", src.c_str());
-		}
 		builder->image_rect.left = node_image.attribute("x").as_int();
 		builder->image_rect.top = node_image.attribute("y").as_int();
 		builder->image_rect.right = node_image.attribute("width").as_int();
 		builder->image_rect.bottom = node_image.attribute("height").as_int();
 		builder->image_rect.right += builder->image_rect.left;
 		builder->image_rect.bottom += builder->image_rect.top;
+
+		builder->image = paper_image_load_from_file(render, src.c_str());
+		if (!builder->image)
+		{
+			fprintf(stderr, "加载图片文件失败，文件名：%s\n", src.c_str());
+			return nullptr;
+		}
+		
+
+		builder->image_brush = paper_brush_create_from_image(render, builder->image);
 		return builder;
     }
 	return nullptr;

@@ -23,6 +23,7 @@ extern "C"
 		uint32 height;
 		struct paper_image* image;
 		struct paper_rect image_rect;
+		struct paper_brush* image_brush;
 	};
 
 	enum ELoadType

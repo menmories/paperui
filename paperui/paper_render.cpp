@@ -70,6 +70,7 @@ static IDWriteFactory* DWriteFactory = nullptr;
 static paper_memorypool* render_pool = nullptr;
 static paper_memorypool* image_pool = nullptr;
 static paper_memorypool* font_pool = nullptr;
+static paper_memorypool* brush_pool = nullptr;
 
 int paper_render_initenv(void)
 {
@@ -96,6 +97,7 @@ int paper_render_initenv(void)
 	render_pool = paper_memorypool_create(sizeof(struct paper_render));
 	image_pool = paper_memorypool_create(sizeof(struct paper_image));
 	font_pool = paper_memorypool_create(sizeof(struct paper_font));
+	brush_pool = paper_memorypool_create(sizeof(struct paper_brush));
 	return 0;
 }
 
@@ -106,6 +108,7 @@ void paper_render_destroyenv(void)
 	paper_memorypool_free(render_pool);
 	paper_memorypool_free(image_pool);
 	paper_memorypool_free(font_pool);
+	paper_memorypool_free(brush_pool);
 }
 
 struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height)
@@ -163,7 +166,32 @@ void paper_render_draw_image(struct paper_render* render, struct paper_image* im
 	render->renderTarget->DrawBitmap(image->bitmap, destRect);
 }
 
-struct paper_render* paper_render_create_compatible(struct paper_render* render, uint32 width, uint32 height)
+void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len, struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush)
+{
+	assert(render && szText && rect && font && brush);
+	render->renderTarget->DrawText(szText,
+		(UINT32)len,
+		font->textFormat,
+		D2D1::RectF((float)rect->left, (float)rect->top, (float)rect->right, (float)rect->bottom),
+		brush->brush,
+		D2D1_DRAW_TEXT_OPTIONS_NONE,
+		DWRITE_MEASURING_MODE_NATURAL
+	);
+}
+
+void paper_render_draw_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush)
+{
+	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)rect->right, (float)rect->bottom };
+	render->renderTarget->DrawRectangle(rc, brush->brush);
+}
+
+void paper_render_fill_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush)
+{
+	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	render->renderTarget->FillRectangle(rc, brush->brush);
+}
+
+struct paper_render* paper_render_create_compatible(struct paper_render* render)
 {
 	ID2D1BitmapRenderTarget* bitmapRenderTarget = nullptr;
 	HRESULT hr = render->renderTarget->CreateCompatibleRenderTarget(&bitmapRenderTarget);
@@ -178,7 +206,29 @@ struct paper_render* paper_render_create_compatible(struct paper_render* render,
 		return nullptr;
 	}
 	compatible_render->renderTarget = bitmapRenderTarget;
-	return render;
+	return compatible_render;
+}
+
+struct paper_image* paper_image_get_from_render(struct paper_render* render)
+{
+	ID2D1BitmapRenderTarget* renderTarget = (ID2D1BitmapRenderTarget*)render->renderTarget;
+	assert(renderTarget);
+	struct paper_image* image = (struct paper_image*)paper_memorypool_alloc(image_pool);
+	if (image)
+	{
+		ID2D1Bitmap* bitmap = nullptr;
+		HRESULT hr = renderTarget->GetBitmap(&bitmap);
+		if (!bitmap)
+		{
+			paper_memorypool_dealloc(image_pool, image);
+			image = nullptr;
+		}
+		else
+		{
+			image->bitmap = bitmap;
+		}
+	}
+	return image;
 }
 
 struct paper_image* paper_image_load_from_file(struct paper_render* render, const char* filename)
@@ -259,6 +309,102 @@ void paper_image_free(struct paper_image* image)
 {
 	SafeRelease(&image->bitmap);
 	paper_memorypool_dealloc(image_pool, image);
+}
+
+PAPER_API struct paper_brush* paper_brush_create_solid(struct paper_render* render, struct paper_color* color)
+{
+	D2D1_COLOR_F c;
+	c.r = color->r;
+	c.g = color->g;
+	c.b = color->b;
+	c.a = color->a;
+	ID2D1SolidColorBrush* brush = nullptr;
+	HRESULT hr = render->renderTarget->CreateSolidColorBrush(c, &brush);
+	if (FAILED(hr))
+	{
+		return nullptr;
+	}
+	struct paper_brush* b = (struct paper_brush*)paper_memorypool_alloc(brush_pool);
+	if (!b)
+	{
+		brush->Release();
+		return nullptr;
+	}
+	b->brush = brush;
+	return b;
+}
+
+PAPER_API struct paper_brush* paper_brush_create_lineargradient(struct paper_render* render, struct paper_gradient_stop* attributes, uint32 count, struct paper_gradient_pos* pos)
+{
+	ID2D1LinearGradientBrush* pLinearGradientBrush = NULL;
+	ID2D1GradientStopCollection* pGradientStopCollection = NULL;
+	/*D2D1_GRADIENT_STOP gradientStops[2];
+	gradientStops[0].color = D2D1::ColorF(D2D1::ColorF::Red);
+	gradientStops[0].position = 0.0f;
+	gradientStops[1].color = D2D1::ColorF(D2D1::ColorF::Blue);
+	gradientStops[1].position = 1.0f;*/
+	render->renderTarget->CreateGradientStopCollection((D2D1_GRADIENT_STOP*)attributes, count, &pGradientStopCollection);
+	if (!pGradientStopCollection)
+	{
+		return nullptr;
+	}
+	D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES linearGradientBrushProperties;
+	linearGradientBrushProperties.startPoint = D2D1::Point2F((float)pos->start_point.x, (float)pos->start_point.y);
+	linearGradientBrushProperties.endPoint = D2D1::Point2F((float)pos->end_point.x, (float)pos->end_point.y);
+	//render->renderTarget->CreateLinearGradientBrush();
+	HRESULT hr = render->renderTarget->CreateLinearGradientBrush(linearGradientBrushProperties, pGradientStopCollection, &pLinearGradientBrush);
+	SafeRelease(&pGradientStopCollection);
+	if (FAILED(hr))
+	{
+		return nullptr;
+	}
+	struct paper_brush* b = (struct paper_brush*)paper_memorypool_alloc(brush_pool);
+	if (!b)
+	{
+		SafeRelease(&pLinearGradientBrush);
+		return nullptr;
+	}
+	b->brush = pLinearGradientBrush;
+	return b;
+}
+
+struct paper_brush* paper_brush_create_from_image(struct paper_render* render, struct paper_image* image)
+{
+	ID2D1BitmapBrush* bitmapBrush = nullptr;
+	assert(render && render->renderTarget && image && image->bitmap);
+	render->renderTarget->CreateBitmapBrush(image->bitmap, &bitmapBrush);
+	if (!bitmapBrush)
+	{
+		return nullptr;
+	}
+	struct paper_brush* b = (struct paper_brush*)paper_memorypool_alloc(brush_pool);
+	if (b)
+	{
+		b->brush = bitmapBrush;
+	}
+	else
+	{
+		bitmapBrush->Release();
+	}
+	return b;
+}
+
+void paper_brush_set_opacity(struct paper_brush* brush, float opacity)
+{
+	brush->brush->SetOpacity(opacity);
+}
+
+void paper_brush_solid_setcolor(struct paper_brush* solidbrush, struct paper_color* color)
+{
+	ID2D1SolidColorBrush* brush = (ID2D1SolidColorBrush*)solidbrush->brush;
+	brush->SetColor(D2D1::ColorF(color->r, color->g, color->b, color->a));
+}
+
+void paper_brush_free(paper_brush* brush)
+{
+	assert(brush && brush->brush);
+	brush->brush->Release();
+	paper_memorypool_dealloc(brush_pool, brush);
 }
 
 struct paper_font* paper_font_create(const wchar_t* family, float size, float weight, const wchar_t* localname /*= L"zh-cn"*/)
