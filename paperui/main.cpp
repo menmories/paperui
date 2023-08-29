@@ -18,6 +18,7 @@
 #include "paper_builder.h"
 
 #include "paper_event.h"
+#include "paper_application.h"
 
 //gdi+来绘制一张图片
 using namespace Gdiplus;
@@ -35,67 +36,11 @@ int32 window_width = 1200;
 int32 window_height = 700;
 int main(int argc, char** argv)
 {
-    struct student
-    {
-        int a;
-        int b;
-        char szTitle[32];
-    };
-
- //   struct paper_vector* vec = paper_vector_create(sizeof(uint32));
- //   int subway = 1;
- //   for (int i = 0; i < 8; i++)
- //   {
- //       uint32 temp = i + 1;
- //       paper_vector_add_front(vec, &temp);
- //   }
-
-	//for (int i = 0; i < 8; i++)
-	//{
- //       uint32 temp = 0;
-	//	paper_vector_pop_front(vec, &temp);
- //       printf("number=%d\n", temp);
-	//}
-
- //   paper_vector_free(vec);
- //   return 0;
-
-	struct paper_memorypool* mp = paper_memorypool_create(sizeof(struct student));
-	struct student* stu[10];
-	for (int i = 0; i < 10; i++)
-	{
-		stu[i] = (struct student*)paper_memorypool_alloc(mp);
-		stu[i]->a = i;
-		stu[i]->b = i + 1;
-	}
-
-	for (int i = 0; i < 10; i++)
-	{
-		stu[i]->a = i;
-		stu[i]->b = i + 1;
-		strcpy(stu[i]->szTitle, "hello world");
-		printf("a:%d,b:%d,title:%s\n", stu[i]->a, stu[i]->b, stu[i]->szTitle);
-	}
-
-	for (int i = 0; i < 10; i++)
-	{
-		paper_memorypool_dealloc(mp, stu[i]);
-	}
-
-
-
-    Gdiplus::GdiplusStartup(&token, &input, nullptr);
-    paper_render_initenv();         //初始化paper渲染器环境
-    window = paper_window_create(TEXT("你好呀"), WndProc, 100, 100, window_width, window_height);
+    paper_application_init();
+    window = paper_window_create(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
+    paper_window_center_screen(window);
     paper_window_show(window);
-
-    struct paper_event e;
-    while (paper_event_run(&e))
-    {
-        //do something
-    }
-    paper_render_destroyenv();
-    return e.code;
+    return paper_application_run();
 }
 
 
@@ -114,7 +59,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         struct paper_color color = {0.1f, 1.0f, 1.0f, 1.0f};
         paper_render_begin_draw(render);
         paper_render_clear(render, &color);
-        struct paper_render* compatible_render = paper_render_create_compatible(render);
+        
+        struct paper_render* compatible_render = paper_render_create_compatible(render, paper_rect_get_width(&builder->image_rect), paper_rect_get_height(&builder->image_rect));
 
         paper_render_begin_draw(compatible_render);
         //paper_brush_set_opacity(builder->image_brush, 0.5f);

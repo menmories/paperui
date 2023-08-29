@@ -5,7 +5,7 @@
 #include <d2d1.h>
 #include <d2d1helper.h>
 #include <dwrite.h>
-
+#include <wincodec.h>
 #include "paper_memorypool.h"
 
 //#define STBI_NO_STDIO
@@ -179,6 +179,36 @@ void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, ui
 	);
 }
 
+void paper_render_draw_line(struct paper_render* render, struct paper_point* start, struct paper_point* end, struct paper_brush* brush, float stroke, enum paper_line_type type)
+{
+	ID2D1StrokeStyle* pStrokeStyle = nullptr;
+	if (type == paper_line_type::paper_line_solid)
+	{
+	}
+	else if (type == paper_line_type::paper_line_dashed)
+	{
+		// Dash array for dashStyle D2D1_DASH_STYLE_CUSTOM
+		float dashes[] = { 1.0f, 2.0f, 2.0f, 3.0f, 2.0f, 2.0f };
+
+		// Stroke Style with Dash Style -- Custom
+		HRESULT hr = Direct2DFactory->CreateStrokeStyle(
+			D2D1::StrokeStyleProperties(
+				D2D1_CAP_STYLE_FLAT,
+				D2D1_CAP_STYLE_FLAT,
+				D2D1_CAP_STYLE_ROUND,
+				D2D1_LINE_JOIN_MITER,
+				10.0f,
+				D2D1_DASH_STYLE_CUSTOM,
+				0.0f),
+			dashes,
+			ARRAYSIZE(dashes),
+			&pStrokeStyle
+		);
+		
+	}
+	render->renderTarget->DrawLine(D2D1::Point2F((float)start->x, (float)start->y), D2D1::Point2F((float)end->x, (float)end->y), brush->brush, stroke, pStrokeStyle);
+}
+
 void paper_render_draw_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush)
 {
 	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)rect->right, (float)rect->bottom };
@@ -191,10 +221,39 @@ void paper_render_fill_rectangle(struct paper_render* render, struct paper_rect*
 	render->renderTarget->FillRectangle(rc, brush->brush);
 }
 
-struct paper_render* paper_render_create_compatible(struct paper_render* render)
+void paper_render_draw_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush, float stroke)
+{
+	D2D1_ROUNDED_RECT rc;
+	rc.rect = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	rc.radiusX = (float)radius->x;
+	rc.radiusY = (float)radius->y;
+	render->renderTarget->DrawRoundedRectangle(rc, brush->brush);
+}
+
+void paper_render_fill_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush)
+{
+	D2D1_ROUNDED_RECT rc;
+	rc.rect = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	rc.radiusX = (float)radius->x;
+	rc.radiusY = (float)radius->y;
+	render->renderTarget->FillRoundedRectangle(rc, brush->brush);
+}
+
+void paper_render_draw_ellipse(struct paper_render* render, struct paper_point* center, float radius_x, float radius_y, struct paper_brush* brush, float stroke)
+{
+	render->renderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F((float)center->x, (float)center->y), radius_x, radius_y), brush->brush, stroke);
+}
+
+PAPER_API void paper_render_fill_ellipse(struct paper_render* render, struct paper_point* center, float radius_x, float radius_y, struct paper_brush* brush)
+{
+	assert(render);
+	render->renderTarget->FillEllipse(D2D1::Ellipse(D2D1::Point2F((float)center->x, (float)center->y), radius_x, radius_y), brush->brush);
+}
+
+struct paper_render* paper_render_create_compatible(struct paper_render* render, int32 width, int32 height)
 {
 	ID2D1BitmapRenderTarget* bitmapRenderTarget = nullptr;
-	HRESULT hr = render->renderTarget->CreateCompatibleRenderTarget(&bitmapRenderTarget);
+	HRESULT hr = render->renderTarget->CreateCompatibleRenderTarget(D2D1::SizeF((float)width, (float)height), &bitmapRenderTarget);
 	if (FAILED(hr))
 	{
 		return nullptr;
@@ -228,6 +287,20 @@ struct paper_image* paper_image_get_from_render(struct paper_render* render)
 			image->bitmap = bitmap;
 		}
 	}
+	/*ID2D1Bitmap* bitmap;
+	ID2D1RenderTarget* pRen;
+	bitmap->GetRender
+
+	ID2D1HwndRenderTarget* renderTarget;
+
+	renderTarget->CreateCompatibleRenderTarget();
+
+	ID2D1BitmapRenderTarget* renderTarget2;
+	renderTarget2->CreateBitmapRenderTarget()
+	IWICBitmap* pWicBitmap;
+	Direct2DFactory->CreateWicBitmapRenderTarget(pWicBitmap, D2D1::RenderTargetProperties(), &render->renderTarget);
+	GUID_WICPixelFormat32bppPBGRA;
+	GUID_WICPixelFormat32bppPRGBA;*/
 	return image;
 }
 
@@ -400,7 +473,7 @@ void paper_brush_solid_setcolor(struct paper_brush* solidbrush, struct paper_col
 	brush->SetColor(D2D1::ColorF(color->r, color->g, color->b, color->a));
 }
 
-void paper_brush_free(paper_brush* brush)
+void paper_brush_free(struct paper_brush* brush)
 {
 	assert(brush && brush->brush);
 	brush->brush->Release();

@@ -38,6 +38,12 @@ extern "C"
 		struct paper_point end_point;
 	};
 
+	enum paper_line_type
+	{
+		paper_line_solid,		//实线
+		paper_line_dashed		//虚线
+	};
+
 	PAPER_API int paper_render_initenv(void);
 
 	PAPER_API void paper_render_destroyenv(void);
@@ -48,6 +54,9 @@ extern "C"
 
 	PAPER_API void paper_render_resize(struct paper_render* render, uint32 width, uint32 height);
 
+	/*
+	* 功能：开始绘图，必须要在绘制之前调用才能开始绘图，绘制结束后调用paper_render_end_draw以结束绘图
+	*/
 	PAPER_API void paper_render_begin_draw(struct paper_render* render);
 
 	PAPER_API void paper_render_end_draw(struct paper_render* render);
@@ -59,14 +68,36 @@ extern "C"
 	PAPER_API void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len,
 		struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush);
 
+	PAPER_API void paper_render_draw_line(struct paper_render* render, struct paper_point* start, struct paper_point* end, struct paper_brush* brush, float stroke, enum paper_line_type type);
+
 	PAPER_API void paper_render_draw_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush);
 
 	PAPER_API void paper_render_fill_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush);
 
-	PAPER_API struct paper_render* paper_render_create_compatible(struct paper_render* render);
+	/*
+	* @功能：绘制一个圆角矩形
+	* @param render 渲染器句柄
+	* @param rect	矩形的区域范围
+	* @param radius 圆角半径
+	* @param brush	画刷
+	* @param stroke 绘制的线粗（默认可填1.0f）
+	*/
+	PAPER_API void paper_render_draw_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush, float stroke);
+
+	PAPER_API void paper_render_fill_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush);
+	/*绘制一个圆*/
+	PAPER_API void paper_render_draw_ellipse(struct paper_render* render, struct paper_point* center, float radius_x, float radius_y, struct paper_brush* brush, float stroke);
+	PAPER_API void paper_render_fill_ellipse(struct paper_render* render, struct paper_point* center, float radius_x, float radius_y, struct paper_brush* brush);
+
+	/*
+	* @功能：创建一个兼容位图
+	* @param width 位图的宽度
+	* @param height 位图的高度
+	* @return 成功返回paper_render指针，失败返回NULL
+	*/
+	PAPER_API struct paper_render* paper_render_create_compatible(struct paper_render* render, int32 width, int32 height);
 
 	
-
 	/*image load*/
 	PAPER_API struct paper_image* paper_image_get_from_render(struct paper_render* render);
 
@@ -88,10 +119,10 @@ extern "C"
 	//只有使用了paper_brush_create_solid创建的颜色画刷才能使用该函数设置颜色
 	PAPER_API void paper_brush_set_opacity(struct paper_brush* brush, float opacity);
 	PAPER_API void paper_brush_solid_setcolor(struct paper_brush* solidbrush, struct paper_color* color);
-	PAPER_API void paper_brush_free(paper_brush* brush);
+	PAPER_API void paper_brush_free(struct paper_brush* brush);
 
 	/*font*/
-	PAPER_API struct paper_font* paper_font_create(const wchar_t* family, float size, float weight, const wchar_t* localname = L"zh-cn");
+	PAPER_API struct paper_font* paper_font_create(const wchar_t* family, float size, float weight, const wchar_t* localname/* = L"zh-cn"*/);
 
 	PAPER_API void paper_font_free(struct paper_font* font);
 #ifdef __cplusplus

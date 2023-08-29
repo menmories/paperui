@@ -9,9 +9,15 @@ extern "C"
 #endif
 	struct paper_window;
 
-	struct paper_window* paper_window_create(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height);
+	struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
+
+	struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
 	struct paper_window* paper_window_native_fromhandle(void* handle);
+
+	void* paper_window_get_native_id(struct paper_window* window);
+
+	void paper_window_set_native_id(struct paper_window* window, void* winid);
 
 	void paper_window_free(struct paper_window* window);
 
@@ -22,6 +28,9 @@ extern "C"
 	void paper_window_set_size(struct paper_window* window, uint32 width, uint32 height);
 
 	void paper_window_set_pos(struct paper_window* window, int32 x, int32 y);
+
+	/*将窗口相对于屏幕居中显示*/
+	void paper_window_center_screen(struct paper_window* window);
 
 	void paper_window_show_maximized(struct paper_window* window);
 

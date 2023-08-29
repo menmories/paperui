@@ -21,6 +21,7 @@ extern "C"
 	typedef uint16_t	uint16;
 	typedef uint8_t		uint8;
 	typedef uint64		uint_ptr;
+	typedef int64		int_ptr;
 #else
 	typedef int32_t		int32;
 	typedef int64_t		int64;
@@ -31,6 +32,7 @@ extern "C"
 	typedef uint16_t	uint16;
 	typedef uint8_t		uint8;
 	typedef uint32		uint_ptr;
+	typedef int32		int_ptr;
 #endif
 
 #ifdef PACKAGE_DLL

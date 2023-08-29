@@ -45,6 +45,9 @@
     <ClCompile Include="paper_elememt.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="paper_application.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="paper_define.h">
@@ -81,6 +84,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="paper_event.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="paper_application.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

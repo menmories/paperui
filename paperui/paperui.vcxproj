@@ -136,6 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="paper_application.cpp" />
     <ClCompile Include="paper_builder.cpp" />
     <ClCompile Include="paper_elememt.c" />
     <ClCompile Include="paper_event.c" />
@@ -157,6 +159,7 @@
     <ClCompile Include="pugixml.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="paper_application.h" />
     <ClInclude Include="paper_builder.h" />
     <ClInclude Include="paper_define.h" />
     <ClInclude Include="paper_elememt.h" />
