@@ -113,6 +113,7 @@ struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC 
 	{
 		return NULL;		//ÄÚ´æ²»×ãÁË
 	}
+	memset(window, 0, sizeof(struct paper_window));
 	DWORD dwExStyle = WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_CLIENTEDGE | WS_EX_APPWINDOW;
 	DWORD dwStyle = WS_OVERLAPPEDWINDOW;
 	RECT rcWindow;

@@ -37,8 +37,8 @@ int32 window_height = 700;
 int main(int argc, char** argv)
 {
     paper_application_init();
+    paper_set_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息，必须要在窗口创建前调用
     window = paper_window_create(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
-    //paper_set_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息
     paper_window_center_screen(window);
     paper_window_show(window);
     return paper_application_run();
@@ -109,6 +109,7 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
 		render = paper_render_create(hWnd, window_width, window_height);
         //builder = paper_builder_load(render, "E:\\GitHub\\paperui\\Output\\Win64\\window.xml", Load_XML);
         builder = paper_builder_load(render, "window.xml", Load_XML);
+        //builder = paper_builder_load(render, "window.xml", Load_XML);
         if (!builder)
         {
             fprintf(stderr, "paper_builder_load 失败\n");

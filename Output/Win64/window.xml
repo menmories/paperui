@@ -3,8 +3,9 @@
 <Head>
     
 </Head>
-<Body x="350" y="150" width="1200" height="700">
-    <Img src="111158151_p0_master1200.jpg" x="200" y="10" width="753" height="1200"/>
+<Body x="350" y="150" width="457" height="690">
+    <Img src="111158151_p0_master1200.jpg" x="200" y="10" width="457" height="690"/>
+    <!-- <Img src="E:\GitHub\paperui\Output\Win64\111158151_p0_master1200.jpg" x="200" y="10" width="457" height="690"/> -->
     <!-- <Img src="98146720_p0_master1200.jpg" x="200" y="10" width="753" height="1200"/> -->
 </Body>
 </UI>
