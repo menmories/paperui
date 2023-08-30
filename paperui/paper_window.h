@@ -9,11 +9,18 @@ extern "C"
 #endif
 	struct paper_window;
 
+	//设置消息循环为默认消息循环
+	void paper_window_set_default_eventcb();
+
 	struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
 	struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
-	struct paper_window* paper_window_native_fromhandle(void* handle);
+	struct paper_window* paper_window_create_from_native_handle(void* handle);
+
+	void paper_window_free_form_native_handle(struct paper_window* window);
+	
+	void paper_window_destroy(struct paper_window* window);
 
 	void* paper_window_get_native_id(struct paper_window* window);
 
@@ -39,6 +46,12 @@ extern "C"
 	int32 paper_window_is_maximized(struct paper_window* window);
 
 	int32 paper_window_is_minimized(struct paper_window* window);
+
+	uint_ptr paper_window_default_handle(struct paper_event* event);
+	
+	//windows event dispatcher.
+	//void paper_window_add_event(struct paper_window* window, int32 type, struct paper_widget* widget);
+
 #ifdef __cplusplus
 }
 #endif

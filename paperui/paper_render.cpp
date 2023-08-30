@@ -135,6 +135,8 @@ struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height)
 
 void paper_render_free(struct paper_render* render)
 {
+	render->renderTarget->Release();
+	render->renderTarget = nullptr;
 	paper_memorypool_dealloc(render_pool, render);
 }
 

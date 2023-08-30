@@ -44,7 +44,12 @@ extern "C"
 
 	void paper_rect_set_pos(struct paper_rect* rect, int32 x, int32 y);
 
-	
+	/*
+	* @function:判断一个2D坐标点是否则矩形区域范围内
+	* @return 
+	* 在区域范围内返回1，否则返回0
+	*/
+	int8 paper_rect_pt_in(struct paper_rect* rect, int32 x, int32 y);
 
 #ifdef __cplusplus
 }

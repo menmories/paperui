@@ -35,3 +35,12 @@ void paper_rect_set_pos(struct paper_rect* rect, int32 x, int32 y)
 	rect->right = rect->left + width;
 	rect->bottom = rect->top + height;
 }
+
+int8 paper_rect_pt_in(struct paper_rect* rect, int32 x, int32 y)
+{
+	if (rect->left < x && rect->right >= x && rect->top < y && rect->bottom >= y)
+	{
+		return 1;
+	}
+	return 0;
+}

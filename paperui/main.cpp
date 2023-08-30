@@ -28,7 +28,7 @@ using namespace Gdiplus;
 
 
 //窗口回调函数，在这里处理窗口消息
-LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+uint_ptr __stdcall handle_my_event(struct paper_event* event);
 ULONG_PTR token;
 Gdiplus::GdiplusStartupInput input;
 struct paper_window* window = nullptr;
@@ -38,18 +38,20 @@ int main(int argc, char** argv)
 {
     paper_application_init();
     window = paper_window_create(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
+    //paper_set_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息
     paper_window_center_screen(window);
     paper_window_show(window);
     return paper_application_run();
 }
 
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+uint_ptr __stdcall handle_my_event(struct paper_event* event)
 {
+    struct paper_window* window = (struct paper_window*)event->source;
     static paper_render* render = nullptr;
     //static paper_image* backgroundImage = nullptr;
     static paper_builder* builder = nullptr;
-    if (uMsg == WM_PAINT)   //WM_PAINT	//绘图消息，告诉我们窗口应该绘图了
+    if (event->type == WM_PAINT)   //WM_PAINT	//绘图消息，告诉我们窗口应该绘图了
     {
         PAINTSTRUCT ps = { 0 };
         //HDC hdc = ::BeginPaint(hWnd, &ps);
@@ -78,32 +80,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         paper_render_free(compatible_render);
         return FALSE;
     }
-    if (uMsg == WM_CLOSE)
+    if (event->type == WM_CLOSE)
     {
-        DestroyWindow(hWnd);
+        paper_window_destroy(window);
         return FALSE;
     }
-    if (uMsg == WM_DESTROY)
+    if (event->type == WM_DESTROY)
     {
         paper_render_free(render);
         PostQuitMessage(0);
         return FALSE;
     }
-    if (uMsg == WM_SIZE)
+    if (event->type == WM_SIZE)
     {
-        window_width = LOWORD(lParam);
-        window_height = HIWORD(lParam);
+        window_width = LOWORD(event->param2);
+        window_height = HIWORD(event->param2);
         paper_render_resize(render, window_width, window_height);
         paper_rect_set_size(&builder->image_rect, window_width, window_height);
         return FALSE;
     }
-    if (uMsg == WM_ERASEBKGND)
+    if (event->type == WM_ERASEBKGND)
     {
         return FALSE;
     }
-	if (uMsg == WM_CREATE)
+	if (event->type == WM_CREATE)
 	{
-        
+        HWND hWnd = (HWND)paper_window_get_native_id(window);
 		render = paper_render_create(hWnd, window_width, window_height);
         //builder = paper_builder_load(render, "E:\\GitHub\\paperui\\Output\\Win64\\window.xml", Load_XML);
         builder = paper_builder_load(render, "window.xml", Load_XML);
@@ -113,7 +115,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-			struct paper_window* win = paper_window_native_fromhandle((HWND)hWnd);
+			struct paper_window* win = paper_window_create_from_native_handle(hWnd);
 			paper_window_set_pos(win, builder->x, builder->y);
 			//paper_window_set_size(win, builder->width, builder->height);
             //paper_window_set_pos(win, 0, 0);
@@ -123,11 +125,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             paper_rect_set_pos(&builder->image_rect, 0, 0);
 
             paper_window_set_size(win, width, height);
-			paper_window_free(win);
+			paper_window_free_form_native_handle(win);
 			//backgroundImage = paper_image_load_from_file(render, "98146720_p0_master1200.jpg");
         }
         
 		return FALSE;
 	}
-    return ::DefWindowProc(hWnd, uMsg, wParam, lParam);     //默认处理窗口回调函数
+    return paper_window_default_handle(event);     //默认处理窗口回调函数
 }

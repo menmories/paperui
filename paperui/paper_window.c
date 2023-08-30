@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <windowsx.h>
 #include <stdio.h>
+#include "paper_vector.h"
 #include "paper_memorypool.h"
 #include "paper_render.h"
 #include "paper_event.h"
@@ -13,7 +14,7 @@ struct paper_window
 {
 	void* winid;				//窗口句柄
 	struct paper_render* render;
-	struct paper_widget_queue* render_queue;	//
+	struct paper_widget_queue* widget_queue;				//控件队列，主要用于渲染和处理事件
 };
 
 static uint32 window_count = 0;			//窗口引用计数达到0则程序退出
@@ -22,29 +23,44 @@ extern LRESULT CALLBACK paper_wnd_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
 int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 {
+	struct paper_window* window = event->source;
 	if (event->type == PAPER_EVENT_PAINT)
 	{
 		static struct paper_color color = { 0.1f, 1.0f, 1.0f, 1.0f };
-		paper_render_begin_draw(event->window->render);
-		paper_render_clear(event->window->render, &color);
-		paper_widget_queue_paint_all(event->window->render_queue);
-		paper_render_end_draw(event->window->render);
+		paper_render_begin_draw(window->render);
+		paper_render_clear(window->render, &color);
+		paper_widget_queue_paint_all(window->widget_queue);
+		paper_render_end_draw(window->render);
 		return 0;
 	}
 	if (event->type == PAPER_EVENT_SIZE)
 	{
 		int32 width = LOWORD(event->param2);
 		int32 height = HIWORD(event->param2);
-		paper_render_resize(event->window->render, width, height);
+		paper_render_resize(window->render, width, height);
+		paper_widget_queue_on_resize(window->widget_queue, width, height);
 		return 0;
+	}
+	if (event->type == PAPER_EVENT_LBUTTONDOWN)
+	{
+		int32 x = LOWORD(event->param2);
+		int32 y = HIWORD(event->param2);
+		paper_widget_queue_on_lbutton(window->widget_queue, x, y, 1);
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_LBUTTONUP)
+	{
+		int32 x = LOWORD(event->param2);
+		int32 y = HIWORD(event->param2);
+		paper_widget_queue_on_lbutton(window->widget_queue, x, y, 0);
 	}
 	if (event->type == PAPER_EVENT_INIT)
 	{
 		//在此处初始化渲染队列
 		RECT rcClient;
-		GetClientRect((HWND)event->window->winid, &rcClient);
-		event->window->render = paper_render_create(event->window->winid, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top);
-		event->window->render_queue = paper_widget_queue_create();
+		GetClientRect((HWND)window->winid, &rcClient);
+		window->render = paper_render_create(window->winid, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top);
+		window->widget_queue = paper_widget_queue_create();
 		window_count++;		//窗口创建成功，窗口引用计数+1
 		return 0;
 	}
@@ -57,10 +73,15 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 		}
 		return 0;
 	}
-	return DefWindowProc((HWND)event->window->winid,
+	return DefWindowProc((HWND)window->winid,
 		event->type,
 		event->param1,
 		event->param2);
+}
+
+void paper_window_set_default_eventcb()
+{
+	paper_set_event_cb(handle_windows_message);
 }
 
 struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
@@ -122,7 +143,7 @@ struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC 
 	return window;
 }
 
-struct paper_window* paper_window_native_fromhandle(void* handle)
+struct paper_window* paper_window_create_from_native_handle(void* handle)
 {
 	struct paper_window* window = (struct paper_window*)malloc(sizeof(struct paper_window));
 	if (!window)
@@ -131,6 +152,17 @@ struct paper_window* paper_window_native_fromhandle(void* handle)
 	}
 	window->winid = handle;
 	return window;
+}
+
+void paper_window_free_form_native_handle(struct paper_window* window)
+{
+	free(window);
+}
+
+void paper_window_destroy(struct paper_window* window)
+{
+	assert(IsWindow(window->winid));
+	DestroyWindow(window->winid);
 }
 
 void* paper_window_get_native_id(struct paper_window* window)
@@ -147,10 +179,10 @@ void paper_window_set_native_id(struct paper_window* window, void* winid)
 
 void paper_window_free(struct paper_window* window)
 {
-	if (window->render_queue)
+	if (window->widget_queue)
 	{
-		paper_widget_queue_free(window->render_queue);
-		window->render_queue = NULL;
+		paper_widget_queue_free(window->widget_queue);
+		window->widget_queue = NULL;
 	}
 	if (window->render)
 	{
@@ -215,5 +247,11 @@ int32 paper_window_is_maximized(struct paper_window* window)
 int32 paper_window_is_minimized(struct paper_window* window)
 {
 	return IsZoomed((HWND)window->winid);
+}
+
+uint_ptr paper_window_default_handle(struct paper_event* event)
+{
+	struct paper_window* window = event->source;
+	return DefWindowProc(window->winid, event->type, event->param1, event->param2);
 }
 

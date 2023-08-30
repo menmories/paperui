@@ -5,6 +5,8 @@
 
 static uint8 paper_key[255];
 
+static handle_event_cb handle_window_event;
+
 int32 paper_event_run(struct paper_event* event)
 {
 	//窗口消息事件循环
@@ -45,12 +47,22 @@ void paper_event_add(struct paper_event* event)
 
 }
 
+void paper_set_event_cb(handle_event_cb cb)
+{
+	handle_window_event = cb;
+}
+
+handle_event_cb paper_get_event_cb(void)
+{
+	return handle_window_event;
+}
+
 void paper_event_handle_windows_key(WPARAM wParam, LPARAM lParam)
 {
 
 }
 
-uint_ptr CALLBACK handle_windows_message(struct paper_event* event);
+//extern uint_ptr CALLBACK handle_windows_message(struct paper_event* event);
 LRESULT CALLBACK paper_wnd_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	struct paper_window* window = NULL;
@@ -66,10 +78,6 @@ LRESULT CALLBACK paper_wnd_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 		return FALSE;
 	}
-	if (uMsg == WM_QUIT)
-	{
-		return FALSE;
-	}
 	if (uMsg == WM_NCDESTROY)
 	{
 		paper_window_free(window);
@@ -79,11 +87,11 @@ LRESULT CALLBACK paper_wnd_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	if (window)
 	{
 		struct paper_event event;
-		event.window = window;
+		event.source = window;
 		event.type = uMsg;
 		event.param1 = wParam;
 		event.param2 = lParam;
-		return handle_windows_message(&event);
+		return handle_window_event(&event);
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
