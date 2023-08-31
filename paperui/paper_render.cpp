@@ -274,6 +274,7 @@ struct paper_render* paper_render_create_compatible(struct paper_render* render,
 		SafeRelease(&bitmapRenderTarget);
 		return nullptr;
 	}
+	compatible_render->winid = render->winid;
 	compatible_render->renderTarget = bitmapRenderTarget;
 	return compatible_render;
 }
