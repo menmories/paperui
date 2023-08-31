@@ -35,6 +35,7 @@ inline void SafeRelease(Interface** ppInterfaceToRelease)
 struct paper_render
 {
 	ID2D1RenderTarget* renderTarget;
+	void* winid;
 };
 
 struct paper_image
@@ -130,6 +131,7 @@ struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height)
 		return nullptr;
 	}
 	render->renderTarget = renderTarget;
+	render->winid = wnd;
 	return render;
 }
 
@@ -144,6 +146,11 @@ void paper_render_resize(struct paper_render* render, uint32 width, uint32 heigh
 {
 	ID2D1HwndRenderTarget* renderTarget = (ID2D1HwndRenderTarget*)render->renderTarget;
 	renderTarget->Resize(D2D1::SizeU(width, height));
+}
+
+void paper_render_invalid(struct paper_render* render)
+{
+	InvalidateRect((HWND)render->winid, nullptr, FALSE);
 }
 
 void paper_render_begin_draw(struct paper_render* render)
@@ -219,14 +226,15 @@ void paper_render_draw_rectangle(struct paper_render* render, struct paper_rect*
 
 void paper_render_fill_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush)
 {
-	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	//D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)rect->right, (float)rect->bottom };
 	render->renderTarget->FillRectangle(rc, brush->brush);
 }
 
 void paper_render_draw_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush, float stroke)
 {
 	D2D1_ROUNDED_RECT rc;
-	rc.rect = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	rc.rect = { (float)rect->left, (float)rect->top, (float)(rect->right), (float)(rect->bottom) };
 	rc.radiusX = (float)radius->x;
 	rc.radiusY = (float)radius->y;
 	render->renderTarget->DrawRoundedRectangle(rc, brush->brush);
@@ -235,7 +243,7 @@ void paper_render_draw_roundrectangle(struct paper_render* render, struct paper_
 void paper_render_fill_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush)
 {
 	D2D1_ROUNDED_RECT rc;
-	rc.rect = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	rc.rect = { (float)rect->left, (float)rect->top, (float)(rect->right), (float)(rect->bottom) };
 	rc.radiusX = (float)radius->x;
 	rc.radiusY = (float)radius->y;
 	render->renderTarget->FillRoundedRectangle(rc, brush->brush);

@@ -113,6 +113,7 @@ void paper_widget_on_mouseenter(struct paper_widget* widget)
 	//struct paper_color color = {0.0f, 0.8f, 1.0f};
 	//paper_brush_solid_setcolor(widget->background, &color);
 	widget->background = widget->background2;
+	paper_render_invalid(widget->render);
 }
 
 void paper_widget_on_mouseleave(struct paper_widget* widget)
@@ -120,6 +121,7 @@ void paper_widget_on_mouseleave(struct paper_widget* widget)
 	//struct paper_color color = { 0.1f, 1.8f, 1.0f };
 	//paper_brush_solid_setcolor(widget->background, &color);
 	widget->background = widget->background1;
+	paper_render_invalid(widget->render);
 }
 
 void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8 state)
@@ -224,9 +226,9 @@ void paper_widget_queue_on_mousemove(struct paper_widget_queue* widget_queue, in
 	struct paper_widget* widget = widget_queue->head;
 	if (widget_queue->enter_widget)
 	{
-		if (!widget->pt_in_region(widget_queue->enter_widget, &pt))
+		if (!widget_queue->enter_widget->pt_in_region(widget_queue->enter_widget, &pt))
 		{
-			widget_queue->enter_widget->on_mouse_leave(widget);      //鼠标离开了
+			widget_queue->enter_widget->on_mouse_leave(widget_queue->enter_widget);      //鼠标离开了
 			widget_queue->enter_widget = NULL;
 		}
 		else

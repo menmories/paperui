@@ -54,6 +54,8 @@ extern "C"
 
 	PAPER_API void paper_render_resize(struct paper_render* render, uint32 width, uint32 height);
 
+	PAPER_API void paper_render_invalid(struct paper_render* render);
+
 	/*
 	* 功能：开始绘图，必须要在绘制之前调用才能开始绘图，绘制结束后调用paper_render_end_draw以结束绘图
 	*/
