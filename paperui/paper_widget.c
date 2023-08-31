@@ -89,6 +89,16 @@ void paper_widget_free(struct paper_widget* widget)
 	free(widget);
 }
 
+struct paper_render* paper_widget_get_render(struct paper_widget* widget)
+{
+	return widget->render;
+}
+
+void paper_widget_get_rect(struct paper_widget* widget, struct paper_rect* rect)
+{
+	memcpy(rect, &widget->rect, sizeof(struct paper_rect));
+}
+
 void paper_widget_map_global_point(struct paper_widget* widget, struct paper_point* global_pt)
 {
 	widget = widget->parent;
@@ -159,6 +169,34 @@ void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8
 	{
 		printf("鼠标按下%d次\n", ++count);
 	}
+}
+
+struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struct* init)
+{
+	struct paper_widget_overlay* overlay = (struct paper_widget_overlay*)malloc(sizeof(struct paper_widget_overlay));
+	if (!overlay)
+	{
+		return NULL;
+	}
+	paper_widget_init((struct paper_widget*)overlay, init);
+	init->paint = (paper_widget_paint_cb)paper_overlay_paint;
+	return overlay;
+}
+
+void paper_overlay_paint(struct paper_widget_overlay* overlay)
+{
+	struct paper_render* render = paper_widget_get_render((struct paper_widget*)overlay);
+	struct paper_rect rect;
+	paper_widget_get_rect((struct paper_widget*)overlay, &rect);
+	struct paper_render* comp_render = paper_render_create_compatible(render, paper_rect_get_width(&rect), paper_rect_get_height(&rect));
+	paper_render_begin_draw(comp_render);
+	//在此处绘制overlay及其子控件...
+
+	paper_render_end_draw(comp_render);
+	struct paper_image* image = paper_image_get_from_render(comp_render);
+	paper_render_draw_image(render, image, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+	paper_render_free(comp_render);
+	paper_image_free(image);
 }
 
 void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue)

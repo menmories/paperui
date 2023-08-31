@@ -102,8 +102,10 @@ extern "C"
 	void paper_widget_init(struct paper_widget* widget, struct paper_widget_init_struct* init);
 	void paper_widget_set_size(struct paper_widget* widget, uint32 width, uint32 height);
 	void paper_widget_set_pos(struct paper_widget* widget, int32 x, int32 y);
-	void paper_widget_paint(struct paper_widget* widget);
+	void paper_widget_paint(struct paper_widget* widget);			//widget 绘图函数
 	void paper_widget_free(struct paper_widget* widget);
+	struct paper_render* paper_widget_get_render(struct paper_widget* widget);
+	void paper_widget_get_rect(struct paper_widget* widget, struct paper_rect* rect);
 	void paper_widget_map_global_point(struct paper_widget* widget, struct paper_point* global_pt);
 	int8 paper_widget_pt_in_region(struct paper_widget* widget, struct paper_point* pt);
 
@@ -117,6 +119,11 @@ extern "C"
 	void paper_widget_on_mouseenter(struct paper_widget* widget);
 	void paper_widget_on_mouseleave(struct paper_widget* widget);
 	void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8 state);
+
+
+	/*overlay实现*/
+	struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struct* init);
+	void paper_overlay_paint(struct paper_widget_overlay* overlay);
 
 	//渲染队列
 	void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue);
