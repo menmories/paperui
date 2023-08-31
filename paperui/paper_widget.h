@@ -113,13 +113,17 @@ extern "C"
 	void paper_widget_should_handle_enter(struct paper_widget* widget);
 	//当需要处理鼠标离开控件范围消息时使用此函数
 	void paper_widget_should_handle_leave(struct paper_widget* widget);
+	//为控件增添一个事件
 	void paper_widget_add_event(struct paper_widget* widget, uint32 evtype);
-
+	//当窗口大小发生改变时，所有的控件将触发此函数
 	void paper_widget_on_resize(struct paper_widget* widget, int32 width, int32 height);
+	//鼠标进入和移出消息
 	void paper_widget_on_mouseenter(struct paper_widget* widget);
 	void paper_widget_on_mouseleave(struct paper_widget* widget);
+	//鼠标左键按下弹起事件,state为1表示按下，0表示弹起
 	void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8 state);
 
+	/*image控件实现*/
 
 	/*overlay实现*/
 	struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struct* init);
