@@ -34,7 +34,7 @@ extern "C"
 		struct paper_rect rect;
 		struct paper_rect rect_global;	//global of window rect.
 		uint32 listen_events;			//监听的事件
-
+		uint32 events;
 		struct paper_brush* background;
 		struct paper_brush* background1;
 		struct paper_brush* background2;
@@ -104,9 +104,15 @@ extern "C"
 	void paper_widget_set_pos(struct paper_widget* widget, int32 x, int32 y);
 	void paper_widget_paint(struct paper_widget* widget);
 	void paper_widget_free(struct paper_widget* widget);
-	void paper_widget_map_global(struct paper_widget* widget, struct paper_rect* rect);
+	void paper_widget_map_global_point(struct paper_widget* widget, struct paper_point* global_pt);
 	int8 paper_widget_pt_in_region(struct paper_widget* widget, struct paper_point* pt);
+
+	//当需要处理鼠标进入控件范围消息时使用此函数
+	void paper_widget_should_handle_enter(struct paper_widget* widget);
+	//当需要处理鼠标离开控件范围消息时使用此函数
+	void paper_widget_should_handle_leave(struct paper_widget* widget);
 	void paper_widget_add_event(struct paper_widget* widget, uint32 evtype);
+
 	void paper_widget_on_resize(struct paper_widget* widget, int32 width, int32 height);
 	void paper_widget_on_mouseenter(struct paper_widget* widget);
 	void paper_widget_on_mouseleave(struct paper_widget* widget);

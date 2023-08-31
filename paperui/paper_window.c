@@ -35,8 +35,8 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 	}
 	if (event->type == PAPER_EVENT_MOUSEMOVE)
 	{
-		int32 x = LOWORD(event->param2);
-		int32 y = HIWORD(event->param2);
+		int32 x = GET_X_LPARAM(event->param2);
+		int32 y = GET_Y_LPARAM(event->param2);
 		paper_widget_queue_on_mousemove(window->widget_queue, x, y);
 		return 0;
 	}
@@ -50,16 +50,17 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 	}
 	if (event->type == PAPER_EVENT_LBUTTONDOWN)
 	{
-		int32 x = LOWORD(event->param2);
-		int32 y = HIWORD(event->param2);
+		int32 x = GET_X_LPARAM(event->param2);
+		int32 y = GET_Y_LPARAM(event->param2);
 		paper_widget_queue_on_lbutton(window->widget_queue, x, y, 1);
 		return 0;
 	}
 	if (event->type == PAPER_EVENT_LBUTTONUP)
 	{
-		int32 x = LOWORD(event->param2);
-		int32 y = HIWORD(event->param2);
+		int32 x = GET_X_LPARAM(event->param2);
+		int32 y = GET_Y_LPARAM(event->param2);
 		paper_widget_queue_on_lbutton(window->widget_queue, x, y, 0);
+		return 0;
 	}
 	if (event->type == PAPER_EVENT_INIT)
 	{
@@ -99,7 +100,7 @@ struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 
 struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
 {
 	WNDCLASS wc = { 0 };
-	wc.style = CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+	wc.style = CS_VREDRAW | CS_HREDRAW | CS_CLASSDC;	// | CS_DBLCLKS;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hIcon = NULL;

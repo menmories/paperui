@@ -1,5 +1,7 @@
 #include "paper_event.h"
 #include <Windows.h>
+#include <windowsx.h>
+#include <tchar.h>
 #include "paper_widget.h"
 #include "paper_window.h"
 
@@ -74,6 +76,18 @@ LRESULT CALLBACK paper_wnd_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 	window = (struct paper_window*)(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	//if (uMsg == PAPER_EVENT_LBUTTONDOWN)
+	//{
+	//	int32 x = GET_X_LPARAM(lParam);
+	//	int32 y = GET_Y_LPARAM(lParam);
+	//	static int32 count = 0;
+	//	TCHAR szText[1024];
+	//	wsprintf(szText, L"鼠标左键按下：%d次", ++count);
+	//	SetWindowText(hWnd, szText);
+	//	//printf("鼠标左键按下：%d次\n", ++count);
+	//	//paper_widget_queue_on_lbutton(window->widget_queue, x, y, 1);
+	//	return 0;
+	//}
 	if (uMsg == WM_ERASEBKGND)
 	{
 		return FALSE;

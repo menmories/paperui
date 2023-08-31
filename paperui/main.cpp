@@ -149,6 +149,7 @@ void initui(struct paper_window* window)
     widget->background1 = paper_brush_create_solid(render, &color);
     widget->background2 = paper_brush_create_solid(render, &color2);
     widget->background = widget->background1;
+    /*
     paper_rect_set_pos(&widget->rect, 10, 10);
     paper_rect_set_size(&widget->rect, 120, 50);
     paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
@@ -172,5 +173,21 @@ void initui(struct paper_window* window)
 	paper_rect_set_pos(&widget->rect, 130, 180);
 	paper_rect_set_size(&widget->rect, 120, 50);
 	paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
-	paper_window_add_widget(window, widget);
+	paper_window_add_widget(window, widget);*/
+
+    for (int32 i = 0; i < 20; i++)
+    {
+        for (int32 j = 0; j < 40; j++)
+        {
+			widget = paper_widget_create(nullptr);
+			widget->render = render;
+			widget->background1 = paper_brush_create_solid(render, &color);
+			widget->background2 = paper_brush_create_solid(render, &color2);
+			widget->background = widget->background1;
+			paper_rect_set_pos(&widget->rect, i * 100, j * 40);
+			paper_rect_set_size(&widget->rect, 90, 30);
+			paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
+			paper_window_add_widget(window, widget);
+        }
+    }
 }
