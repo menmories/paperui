@@ -123,6 +123,12 @@ extern "C"
 	void paper_widget_queue_on_resize(struct paper_widget_queue* widget_queue, int32 width, int32 height);
 	void paper_widget_queue_on_mousemove(struct paper_widget_queue* widget_queue, int32 x, int32 y);
 	void paper_widget_queue_on_lbutton(struct paper_widget_queue* widget_queue, int32 x, int32 y, int8 state);		//当鼠标左键触发时调用此函数
+
+
+	struct paper_widget* paper_widget_queue_findpoint(struct paper_widget_queue* widget_queue, struct paper_point* pt);
+	void paper_widget_convert_point(struct paper_widget* widget, const struct paper_point* pt, struct paper_point* outpt);
+	struct paper_widget* paper_widget_findpointinchild(struct paper_widget* widget, struct paper_point* pt);
+
 #ifdef __cplusplus
 }
 #endif	//__cplusplus

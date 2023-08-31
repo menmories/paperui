@@ -257,14 +257,82 @@ void paper_widget_queue_on_mousemove(struct paper_widget_queue* widget_queue, in
 
 void paper_widget_queue_on_lbutton(struct paper_widget_queue* widget_queue, int32 x, int32 y, int8 state)
 {
+	struct paper_point pt = { x, y };
+	struct paper_widget* p = paper_widget_queue_findpoint(widget_queue, &pt);
+	if (p)
+	{
+		p->on_lbutton(p, x, y, state);
+	}
+	//struct paper_widget* widget = widget_queue->head;
+	//while (widget)
+	//{
+	//	if (widget->listen_events & PAPER_LISTEN_EVENT_LBUTTON)
+	//	{
+	//		assert(widget->on_lbutton);		//防止渲染回调没有赋值
+	//		
+	//		
+	//	}
+	//	widget = widget->next;
+	//}
+}
+
+
+
+
+struct paper_widget* paper_widget_queue_findpoint(struct paper_widget_queue* widget_queue, struct paper_point* pt)
+{
 	struct paper_widget* widget = widget_queue->head;
 	while (widget)
 	{
 		if (widget->listen_events & PAPER_LISTEN_EVENT_LBUTTON)
 		{
-			assert(widget->on_lbutton);		//防止渲染回调没有赋值
-			widget->on_lbutton(widget, x, y, state);
+			if (widget->pt_in_region(widget, pt))
+			{
+				struct paper_point ptchild;
+				paper_widget_convert_point(widget, pt, &ptchild);
+				struct paper_widget* p = paper_widget_findpointinchild(widget->child, &ptchild);
+				if (p)
+				{
+					return p;
+				}
+				else
+				{
+					return widget;
+				}
+			}
 		}
 		widget = widget->next;
 	}
+	return NULL;
+}
+
+void paper_widget_convert_point(struct paper_widget* widget, const struct paper_point* pt, struct paper_point* outpt)
+{
+	outpt->x = pt->x - widget->rect.left;
+	outpt->y = pt->y - widget->rect.top;
+}
+
+struct paper_widget* paper_widget_findpointinchild(struct paper_widget* widget, struct paper_point* pt)
+{
+	struct paper_widget* p = widget;
+	while (p)
+	{
+		if (p->pt_in_region(p, pt))
+		{
+			struct paper_point ptchild;
+			paper_widget_convert_point(p, pt, &ptchild);
+			widget = paper_widget_findpointinchild(p, &ptchild);
+			if (widget)
+			{
+				return widget;
+			}
+			else
+			{
+				return p;
+			}
+		}
+		p = p->next;
+	}
+
+	return NULL;
 }
