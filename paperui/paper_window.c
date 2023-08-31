@@ -26,11 +26,18 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 	struct paper_window* window = event->source;
 	if (event->type == PAPER_EVENT_PAINT)
 	{
-		static struct paper_color color = { 0.1f, 1.0f, 1.0f, 1.0f };
+		static struct paper_color color = { 1.1f, 1.0f, 1.0f, 1.0f };
 		paper_render_begin_draw(window->render);
 		paper_render_clear(window->render, &color);
 		paper_widget_queue_paint_all(window->widget_queue);
 		paper_render_end_draw(window->render);
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_MOUSEMOVE)
+	{
+		int32 x = LOWORD(event->param2);
+		int32 y = HIWORD(event->param2);
+		paper_widget_queue_on_mousemove(window->widget_queue, x, y);
 		return 0;
 	}
 	if (event->type == PAPER_EVENT_SIZE)
@@ -254,5 +261,15 @@ uint_ptr paper_window_default_handle(struct paper_event* event)
 {
 	struct paper_window* window = event->source;
 	return DefWindowProc(window->winid, event->type, event->param1, event->param2);
+}
+
+struct paper_render* paper_window_get_render(struct paper_window* window)
+{
+	return window->render;
+}
+
+void paper_window_add_widget(struct paper_window* window, struct paper_widget* widget)
+{
+	paper_widget_queue_add(window->widget_queue, widget);
 }
 

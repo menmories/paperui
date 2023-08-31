@@ -48,6 +48,10 @@ extern "C"
 	int32 paper_window_is_minimized(struct paper_window* window);
 
 	uint_ptr paper_window_default_handle(struct paper_event* event);
+
+	struct paper_render* paper_window_get_render(struct paper_window* window);
+
+	void paper_window_add_widget(struct paper_window* window, struct paper_widget* widget);
 	
 	//windows event dispatcher.
 	//void paper_window_add_event(struct paper_window* window, int32 type, struct paper_widget* widget);

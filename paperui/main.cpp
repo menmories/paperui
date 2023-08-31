@@ -29,6 +29,7 @@ using namespace Gdiplus;
 
 //窗口回调函数，在这里处理窗口消息
 uint_ptr __stdcall handle_my_event(struct paper_event* event);
+void initui(struct paper_window* window);
 ULONG_PTR token;
 Gdiplus::GdiplusStartupInput input;
 struct paper_window* window = nullptr;
@@ -37,8 +38,10 @@ int32 window_height = 700;
 int main(int argc, char** argv)
 {
     paper_application_init();
-    paper_set_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息，必须要在窗口创建前调用
+    //paper_set_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息，必须要在窗口创建前调用
     window = paper_window_create(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
+    //init ui
+    initui(window);
     paper_window_center_screen(window);
     paper_window_show(window);
     return paper_application_run();
@@ -58,7 +61,7 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
         //在这里加入绘图代码
 
         //::EndPaint(hWnd, &ps);
-        struct paper_color color = {0.1f, 1.0f, 1.0f, 1.0f};
+        struct paper_color color = {1.0f, 1.0f, 1.0f, 1.0f};
         paper_render_begin_draw(render);
         paper_render_clear(render, &color);
         
@@ -133,4 +136,21 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
 		return FALSE;
 	}
     return paper_window_default_handle(event);     //默认处理窗口回调函数
+}
+
+
+void initui(struct paper_window* window)
+{
+    struct paper_render* render = paper_window_get_render(window);
+    struct paper_widget* widget = paper_widget_create(nullptr);
+    widget->render = render;
+    struct paper_color color = {0.1f, 1.0f, 1.0f, 1.0f};
+    struct paper_color color2 = { 0.0f, 0.5f, 1.0f, 1.0f };
+    widget->background1 = paper_brush_create_solid(render, &color);
+    widget->background2 = paper_brush_create_solid(render, &color2);
+    widget->background = widget->background1;
+    paper_rect_set_pos(&widget->rect, 10, 10);
+    paper_rect_set_size(&widget->rect, 120, 50);
+    paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
+    paper_window_add_widget(window, widget);
 }

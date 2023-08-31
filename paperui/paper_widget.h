@@ -34,6 +34,10 @@ extern "C"
 		struct paper_rect rect;
 		struct paper_rect rect_global;	//global of window rect.
 		uint32 listen_events;			//监听的事件
+
+		struct paper_brush* background;
+		struct paper_brush* background1;
+		struct paper_brush* background2;
 		struct paper_render* render;
 		struct paper_widget* prev;
 		struct paper_widget* next;
@@ -103,6 +107,10 @@ extern "C"
 	void paper_widget_map_global(struct paper_widget* widget, struct paper_rect* rect);
 	int8 paper_widget_pt_in_region(struct paper_widget* widget, struct paper_point* pt);
 	void paper_widget_add_event(struct paper_widget* widget, uint32 evtype);
+	void paper_widget_on_resize(struct paper_widget* widget, int32 width, int32 height);
+	void paper_widget_on_mouseenter(struct paper_widget* widget);
+	void paper_widget_on_mouseleave(struct paper_widget* widget);
+	void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8 state);
 
 	//渲染队列
 	void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue);

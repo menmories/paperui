@@ -24,6 +24,10 @@ struct paper_widget* paper_widget_create(struct paper_widget_init_struct* init)
 		init2.paint = paper_widget_paint;
 		init2.pt_in_region = paper_widget_pt_in_region;
 		init2.parent = NULL;
+		init2.on_resize = paper_widget_on_resize;
+		init2.on_mouse_enter = paper_widget_on_mouseenter;
+		init2.on_mouse_leave = paper_widget_on_mouseleave;
+		init2.on_lbutton = paper_widget_on_lbutton;
 		paper_widget_init(widget, &init2);
 	}
 	
@@ -65,8 +69,7 @@ void paper_widget_set_pos(struct paper_widget* widget, int32 x, int32 y)
 
 void paper_widget_paint(struct paper_widget* widget)
 {
-	/*paper_brush_create_solid()
-	paper_render_fill_rectangle(widget->render, )*/
+	paper_render_fill_rectangle(widget->render, &widget->rect, widget->background);
 }
 
 void paper_widget_free(struct paper_widget* widget)
@@ -100,6 +103,30 @@ void paper_widget_add_event(struct paper_widget* widget, uint32 evtype)
 	widget->listen_events |= evtype;
 }
 
+void paper_widget_on_resize(struct paper_widget* widget, int32 width, int32 height)
+{
+
+}
+
+void paper_widget_on_mouseenter(struct paper_widget* widget)
+{
+	//struct paper_color color = {0.0f, 0.8f, 1.0f};
+	//paper_brush_solid_setcolor(widget->background, &color);
+	widget->background = widget->background2;
+}
+
+void paper_widget_on_mouseleave(struct paper_widget* widget)
+{
+	//struct paper_color color = { 0.1f, 1.8f, 1.0f };
+	//paper_brush_solid_setcolor(widget->background, &color);
+	widget->background = widget->background1;
+}
+
+void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8 state)
+{
+
+}
+
 void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue)
 {
 	struct paper_widget* p = widget_queue->head;
@@ -121,6 +148,7 @@ struct paper_widget_queue* paper_widget_queue_create()
 	widget_queue->count = 0;
 	widget_queue->head = NULL;
 	widget_queue->end = NULL;
+	widget_queue->enter_widget = NULL;
 	return widget_queue;
 }
 
@@ -192,34 +220,33 @@ void paper_widget_queue_on_resize(struct paper_widget_queue* widget_queue, int32
 
 void paper_widget_queue_on_mousemove(struct paper_widget_queue* widget_queue, int32 x, int32 y)
 {
+	struct paper_point pt = { x, y };
 	struct paper_widget* widget = widget_queue->head;
+	if (widget_queue->enter_widget)
+	{
+		if (!widget->pt_in_region(widget_queue->enter_widget, &pt))
+		{
+			widget_queue->enter_widget->on_mouse_leave(widget);      //鼠标离开了
+			widget_queue->enter_widget = NULL;
+		}
+		else
+		{
+			return;
+		}
+	}
 	while (widget)
 	{
-		//assert(widget->event_cb.on_resize);		//防止渲染回调没有赋值
 		struct paper_rect widget_global_rect;
 		paper_widget_map_global(widget, &widget_global_rect);   //获取当前widget的坐标在全局坐标的位置
-		struct paper_point pt = { x, y };
 		assert(widget->pt_in_region);
 		if (widget->pt_in_region(widget, &pt))
 		{
-			if (widget_queue->enter_widget == widget)
+			if (widget->listen_events & PAPER_LISTEN_EVENT_MOUSEENTER)
 			{
-				return;
-			}
-			if (widget_queue->enter_widget)
-			{
-				if (widget_queue->enter_widget->listen_events & PAPER_LISTEN_EVENT_MOUSELEAVE)
-				{
-					assert(widget_queue->enter_widget->on_mouse_leave);
-					widget_queue->enter_widget->on_mouse_leave(widget);      //鼠标离开了
-				}
+				assert(widget->on_mouse_enter);
+				widget->on_mouse_enter(widget);          //鼠标进入了
 			}
 			widget_queue->enter_widget = widget;
-			if (widget_queue->enter_widget->listen_events & PAPER_LISTEN_EVENT_MOUSEENTER)
-			{
-				assert(widget_queue->enter_widget->on_mouse_enter);
-				widget_queue->enter_widget->on_mouse_enter(widget);          //鼠标进入了
-			}
 			return;
 		}
 		widget = widget->next;
