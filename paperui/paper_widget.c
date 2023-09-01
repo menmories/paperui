@@ -171,6 +171,30 @@ void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8
 	}
 }
 
+struct paper_widget_image* paper_widget_image_create(struct paper_widget_init_struct* init, struct paper_image* image)
+{
+	struct paper_widget_image* image_widget = (struct paper_widget_image*)malloc(sizeof(struct paper_widget_image));
+	if (!image_widget)
+	{
+		return NULL;
+	}
+	image_widget->base.listen_events = 0;		//不监听任何事件
+	image_widget->image = image;
+	return image_widget;
+}
+
+void paper_widget_image_paint(struct paper_widget_image* widget)
+{
+	if (widget)
+	{
+		paper_render_draw_image(widget->base.render, widget->image, 
+			widget->base.rect.left, 
+			widget->base.rect.top,
+			widget->base.rect.right - widget->base.rect.left,
+			widget->base.rect.bottom - widget->base.rect.top);
+	}
+}
+
 struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struct* init)
 {
 	struct paper_widget_overlay* overlay = (struct paper_widget_overlay*)malloc(sizeof(struct paper_widget_overlay));

@@ -78,6 +78,7 @@ extern "C"
 	struct paper_widget_image
 	{
 		struct paper_widget base;
+		struct paper_image* image;
 	};
 	struct paper_widget_text
 	{
@@ -143,6 +144,9 @@ extern "C"
 	void paper_widget_on_lbutton(struct paper_widget* widget, int32 x, int32 y, int8 state);
 
 	/*image控件实现*/
+	struct paper_widget_image* paper_widget_image_create(struct paper_widget_init_struct* init, struct paper_image* image);
+	void paper_widget_image_paint(struct paper_widget_image* widget);
+
 
 	/*overlay实现*/
 	struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struct* init);
