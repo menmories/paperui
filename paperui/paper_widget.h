@@ -125,6 +125,7 @@ extern "C"
 	void paper_widget_paint(struct paper_widget* widget);			//widget »æÍ¼º¯Êı
 	void paper_widget_free(struct paper_widget* widget);
 	struct paper_render* paper_widget_get_render(struct paper_widget* widget);
+	void paper_widget_set_render(struct paper_widget* widget, struct paper_render* render);
 	void paper_widget_get_rect(struct paper_widget* widget, struct paper_rect* rect);
 	void paper_widget_map_global_point(struct paper_widget* widget, struct paper_point* global_pt);
 	int8 paper_widget_pt_in_region(struct paper_widget* widget, struct paper_point* pt);

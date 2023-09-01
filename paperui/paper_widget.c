@@ -15,7 +15,8 @@ struct paper_widget* paper_widget_create(struct paper_widget_init_struct* init)
 		return widget;
 	}
 	memset(widget, 0, sizeof(struct paper_widget));
-	if (init)
+	paper_widget_init(widget, init);
+	/*if (init)
 	{
 		paper_widget_init(widget, init);
 	}
@@ -31,26 +32,42 @@ struct paper_widget* paper_widget_create(struct paper_widget_init_struct* init)
 		init2.on_mouse_leave = paper_widget_on_mouseleave;
 		init2.on_lbutton = paper_widget_on_lbutton;
 		paper_widget_init(widget, &init2);
-	}
+	}*/
 	
 	return widget;
 }
 
 void paper_widget_init(struct paper_widget* widget, struct paper_widget_init_struct* init)
 {
-	widget->parent = init->parent;
-	widget->child = NULL;
-	widget->next = NULL;
-	widget->prev = NULL;
-	widget->paint = init->paint;
-	widget->pt_in_region = init->pt_in_region;
-	widget->on_mouse_enter = init->on_mouse_enter;
-	widget->on_mouse_leave = init->on_mouse_leave;
-	widget->on_resize = init->on_resize;
-	widget->on_lbutton = init->on_lbutton;
-	memcpy(&widget->rect, &init->rect, sizeof(struct paper_rect));
-	widget->parent = init->parent;
-	widget->render = init->render;
+	if (init)
+	{
+		widget->parent = init->parent;
+		widget->child = NULL;
+		widget->next = NULL;
+		widget->prev = NULL;
+		widget->paint = init->paint;
+		widget->pt_in_region = init->pt_in_region;
+		widget->on_mouse_enter = init->on_mouse_enter;
+		widget->on_mouse_leave = init->on_mouse_leave;
+		widget->on_resize = init->on_resize;
+		widget->on_lbutton = init->on_lbutton;
+		memcpy(&widget->rect, &init->rect, sizeof(struct paper_rect));
+		widget->parent = init->parent;
+		widget->render = init->render;
+	}
+	else
+	{
+		struct paper_widget_init_struct init2;
+		memset(&init2, 0, sizeof(struct paper_widget_init_struct));
+		init2.paint = paper_widget_paint;
+		init2.pt_in_region = paper_widget_pt_in_region;
+		init2.parent = NULL;
+		init2.on_resize = paper_widget_on_resize;
+		init2.on_mouse_enter = paper_widget_on_mouseenter;
+		init2.on_mouse_leave = paper_widget_on_mouseleave;
+		init2.on_lbutton = paper_widget_on_lbutton;
+		paper_widget_init(widget, &init2);
+	}
 }
 
 void paper_widget_set_size(struct paper_widget* widget, uint32 width, uint32 height)
@@ -92,6 +109,11 @@ void paper_widget_free(struct paper_widget* widget)
 struct paper_render* paper_widget_get_render(struct paper_widget* widget)
 {
 	return widget->render;
+}
+
+void paper_widget_set_render(struct paper_widget* widget, struct paper_render* render)
+{
+	widget->render = render;
 }
 
 void paper_widget_get_rect(struct paper_widget* widget, struct paper_rect* rect)
@@ -178,7 +200,9 @@ struct paper_widget_image* paper_widget_image_create(struct paper_widget_init_st
 	{
 		return NULL;
 	}
+	paper_widget_init((struct paper_widget*)image_widget, init);
 	image_widget->base.listen_events = 0;		//不监听任何事件
+	image_widget->base.paint = (paper_widget_paint_cb)paper_widget_image_paint;
 	image_widget->image = image;
 	return image_widget;
 }

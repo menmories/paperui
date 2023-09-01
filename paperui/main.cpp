@@ -175,7 +175,14 @@ void initui(struct paper_window* window)
 	paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
 	paper_window_add_widget(window, widget);*/
 
-    for (int32 i = 0; i < 20; i++)
+    struct paper_image* image = paper_image_load_from_file(render, "E:\\GitHub\\paperui\\Output\\Win64\\111158151_p0_master1200.jpg");
+    struct paper_widget_image* image_widget = paper_widget_image_create(NULL, image);
+    paper_widget_set_render((struct paper_widget*)image_widget, render);
+	paper_rect_set_pos(&((struct paper_widget*)(image_widget))->rect, 100, 100);
+	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, 360, 560);
+    paper_window_add_widget(window, (struct paper_widget*)image_widget);
+
+    /*for (int32 i = 0; i < 20; i++)
     {
         for (int32 j = 0; j < 40; j++)
         {
@@ -189,5 +196,5 @@ void initui(struct paper_window* window)
 			paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
 			paper_window_add_widget(window, widget);
         }
-    }
+    }*/
 }
