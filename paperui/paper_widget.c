@@ -180,6 +180,8 @@ struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struc
 	}
 	paper_widget_init((struct paper_widget*)overlay, init);
 	init->paint = (paper_widget_paint_cb)paper_overlay_paint;
+	overlay->halign = paper_halign_left;
+	overlay->valign = paper_valign_top;
 	return overlay;
 }
 
@@ -191,6 +193,13 @@ void paper_overlay_paint(struct paper_widget_overlay* overlay)
 	struct paper_render* comp_render = paper_render_create_compatible(render, paper_rect_get_width(&rect), paper_rect_get_height(&rect));
 	paper_render_begin_draw(comp_render);
 	//在此处绘制overlay及其子控件...
+	struct paper_widget* base = (struct paper_widget*)overlay;
+	struct paper_widget* widget = base->child;
+	while (widget)
+	{
+		widget->paint(widget);
+		widget = widget->next;
+	}
 
 	paper_render_end_draw(comp_render);
 	struct paper_image* image = paper_image_get_from_render(comp_render);

@@ -18,6 +18,23 @@ extern "C"
 
 	struct paper_widget_queue;
 
+	enum paper_valign_type
+	{
+		paper_valign_top,
+		paper_valign_bottom,
+		paper_valign_center,
+		paper_valign_fill
+	};
+
+	enum paper_halign_type
+	{
+		paper_halign_left,
+		paper_halign_right,
+		paper_halign_center,
+		paper_halign_fill
+	};
+
+
 	typedef void (*paper_widget_paint_cb)(struct paper_widget* widget);
 	typedef int8 (*paper_widget_pt_in_region_cb)(struct paper_widget* widget, struct paper_point* pt);
 
@@ -75,6 +92,8 @@ extern "C"
 	struct paper_widget_overlay
 	{
 		struct paper_widget_sizebox base;
+		enum paper_valign_type valign;	    //垂直对齐
+		enum paper_halign_type halign;	    //水平对齐
 	};
 	struct paper_widget_button
 	{
