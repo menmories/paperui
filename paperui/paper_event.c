@@ -49,7 +49,7 @@ void paper_event_add(struct paper_event* event)
 
 }
 
-void paper_set_event_cb(handle_event_cb cb)
+void paper_set_window_event_cb(handle_event_cb cb)
 {
 	handle_window_event = cb;
 }

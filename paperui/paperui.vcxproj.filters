@@ -45,7 +45,7 @@
     <ClCompile Include="paper_elememt.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="paper_application.cpp">
+    <ClCompile Include="paper_application.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

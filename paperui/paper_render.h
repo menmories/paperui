@@ -44,8 +44,10 @@ extern "C"
 		paper_line_dashed		//虚线
 	};
 
+	/*初始化渲染器环境，在使用渲染器环境之前必须调用一次*/
 	PAPER_API int paper_render_initenv(void);
 
+	/*当不再使用渲染器时可使用此函数销毁渲染器*/
 	PAPER_API void paper_render_destroyenv(void);
 
 	PAPER_API struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height);
@@ -66,6 +68,8 @@ extern "C"
 	PAPER_API void paper_render_clear(struct paper_render* render, struct paper_color* color);
 
 	PAPER_API void paper_render_draw_image(struct paper_render* render, struct paper_image* image, int32 x, int32 y, uint32 width, uint32 height);
+	PAPER_API void paper_render_draw_image2(struct paper_render* render, struct paper_image* image, uint32 width, uint32 height);
+	PAPER_API void paper_render_draw_image3(struct paper_render* render, struct paper_image* image);
 
 	PAPER_API void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len,
 		struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush);
@@ -98,7 +102,8 @@ extern "C"
 	* @return 成功返回paper_render指针，失败返回NULL
 	*/
 	PAPER_API struct paper_render* paper_render_create_compatible(struct paper_render* render, int32 width, int32 height);
-
+	/*创建一个兼容渲染器，宽和高继承自指定的渲染器*/
+	PAPER_API struct paper_render* paper_render_create_compatible_extendsize(struct paper_render* render);
 	
 	/*image load*/
 	PAPER_API struct paper_image* paper_image_get_from_render(struct paper_render* render);

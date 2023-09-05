@@ -86,9 +86,9 @@ void paper_widget_set_pos(struct paper_widget* widget, int32 x, int32 y)
 	widget->rect.bottom = y + height;
 }
 
-void paper_widget_paint(struct paper_widget* widget)
+void paper_widget_paint(struct paper_widget* widget, struct paper_render* render)
 {
-	paper_render_fill_rectangle(widget->render, &widget->rect, widget->background);
+	paper_render_fill_rectangle(render, &widget->rect, widget->background);
 }
 
 void paper_widget_free(struct paper_widget* widget)
@@ -233,9 +233,8 @@ struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struc
 	return overlay;
 }
 
-void paper_overlay_paint(struct paper_widget_overlay* overlay)
+void paper_overlay_paint(struct paper_widget_overlay* overlay, struct paper_render* render)
 {
-	struct paper_render* render = paper_widget_get_render((struct paper_widget*)overlay);
 	struct paper_rect rect;
 	paper_widget_get_rect((struct paper_widget*)overlay, &rect);
 	struct paper_render* comp_render = paper_render_create_compatible(render, paper_rect_get_width(&rect), paper_rect_get_height(&rect));
@@ -245,7 +244,7 @@ void paper_overlay_paint(struct paper_widget_overlay* overlay)
 	struct paper_widget* widget = base->child;
 	while (widget)
 	{
-		widget->paint(widget);
+		widget->paint(widget, comp_render);
 		widget = widget->next;
 	}
 
@@ -256,13 +255,13 @@ void paper_overlay_paint(struct paper_widget_overlay* overlay)
 	paper_image_free(image);
 }
 
-void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue)
+void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue, struct paper_render* render)
 {
 	struct paper_widget* p = widget_queue->head;
 	while (p)
 	{
 		assert(p->paint);		//防止渲染回调没有赋值
-		p->paint(p);
+		p->paint(p, render);
 		p = p->next;
 	}
 }
@@ -430,8 +429,14 @@ void paper_widget_queue_on_lbutton(struct paper_widget_queue* widget_queue, int3
 	//}
 }
 
-
-
+void paper_widget_queue_on_mouseleave(struct paper_widget_queue* widget_queue)
+{
+	if (widget_queue->enter_widget)
+	{
+		paper_widget_should_handle_leave(widget_queue->enter_widget);
+		widget_queue->enter_widget = NULL;
+	}
+}
 
 struct paper_widget* paper_widget_queue_findpoint(struct paper_widget_queue* widget_queue, struct paper_point* pt)
 {

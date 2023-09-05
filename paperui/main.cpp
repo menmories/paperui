@@ -38,9 +38,9 @@ int32 window_height = 700;
 int main(int argc, char** argv)
 {
     paper_application_init();
-    //paper_set_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息，必须要在窗口创建前调用
+    //paper_set_window_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息，必须要在窗口创建前调用
     window = paper_window_create(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
-    //init ui
+    //初始化你的UI
     initui(window);
     paper_window_center_screen(window);
     paper_window_show(window);
@@ -52,7 +52,6 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
 {
     struct paper_window* window = (struct paper_window*)event->source;
     static paper_render* render = nullptr;
-    //static paper_image* backgroundImage = nullptr;
     static paper_builder* builder = nullptr;
     if (event->type == WM_PAINT)   //WM_PAINT	//绘图消息，告诉我们窗口应该绘图了
     {
@@ -63,8 +62,7 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
         //::EndPaint(hWnd, &ps);
         struct paper_color color = {1.0f, 1.0f, 1.0f, 1.0f};
         paper_render_begin_draw(render);
-        paper_render_clear(render, &color);
-        
+        paper_render_clear(render, &color);     //窗口必须clear
         struct paper_render* compatible_render = paper_render_create_compatible(render, paper_rect_get_width(&builder->image_rect), paper_rect_get_height(&builder->image_rect));
 
         paper_render_begin_draw(compatible_render);
@@ -175,14 +173,24 @@ void initui(struct paper_window* window)
 	paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
 	paper_window_add_widget(window, widget);*/
 
-    struct paper_image* image = paper_image_load_from_file(render, "E:\\GitHub\\paperui\\Output\\Win64\\111158151_p0_master1200.jpg");
+    int8* szApplicationPath = nullptr;
+    uint32 appPathLen = 0;
+    paper_application_get_path(&szApplicationPath, &appPathLen);        //获取当前应用程序路径
+    std::string strApplicationPath = szApplicationPath;
+    size_t pos = strApplicationPath.rfind('\\');
+    if (pos != std::string::npos)
+    {
+        strApplicationPath = strApplicationPath.substr(0, pos);
+    }
+    std::string imagePath = strApplicationPath + "\\111158151_p0_master1200.jpg";
+    struct paper_image* image = paper_image_load_from_file(render, imagePath.c_str());
     struct paper_widget_image* image_widget = paper_widget_image_create(NULL, image);
     paper_widget_set_render((struct paper_widget*)image_widget, render);
 	paper_rect_set_pos(&((struct paper_widget*)(image_widget))->rect, 100, 100);
 	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, 360, 560);
     paper_window_add_widget(window, (struct paper_widget*)image_widget);
 
-    /*for (int32 i = 0; i < 20; i++)
+    for (int32 i = 0; i < 20; i++)
     {
         for (int32 j = 0; j < 40; j++)
         {
@@ -196,5 +204,5 @@ void initui(struct paper_window* window)
 			paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
 			paper_window_add_widget(window, widget);
         }
-    }*/
+    }
 }

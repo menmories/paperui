@@ -147,7 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="paper_application.cpp" />
+    <ClCompile Include="paper_application.c" />
     <ClCompile Include="paper_builder.cpp" />
     <ClCompile Include="paper_elememt.c" />
     <ClCompile Include="paper_event.c" />

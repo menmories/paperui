@@ -175,6 +175,21 @@ void paper_render_draw_image(struct paper_render* render, struct paper_image* im
 	render->renderTarget->DrawBitmap(image->bitmap, destRect);
 }
 
+void paper_render_draw_image2(struct paper_render* render, struct paper_image* image, uint32 width, uint32 height)
+{
+	// 指定要绘制的图片的目标区域大小
+	D2D1_RECT_F destRect = D2D1::RectF(0.0f, 0.0f, (float)(width), (float)(height));
+	render->renderTarget->DrawBitmap(image->bitmap, destRect);
+}
+
+void paper_render_draw_image3(struct paper_render* render, struct paper_image* image)
+{
+	// 指定要绘制的图片的目标区域大小
+	D2D1_SIZE_F size = render->renderTarget->GetSize();
+	D2D1_RECT_F destRect = D2D1::RectF(0.0f, 0.0f, size.width, size.height);
+	render->renderTarget->DrawBitmap(image->bitmap, destRect);
+}
+
 void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len, struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush)
 {
 	assert(render && szText && rect && font && brush);
@@ -264,6 +279,25 @@ struct paper_render* paper_render_create_compatible(struct paper_render* render,
 {
 	ID2D1BitmapRenderTarget* bitmapRenderTarget = nullptr;
 	HRESULT hr = render->renderTarget->CreateCompatibleRenderTarget(D2D1::SizeF((float)width, (float)height), &bitmapRenderTarget);
+	if (FAILED(hr))
+	{
+		return nullptr;
+	}
+	struct paper_render* compatible_render = (struct paper_render*)paper_memorypool_alloc(render_pool);
+	if (!compatible_render)
+	{
+		SafeRelease(&bitmapRenderTarget);
+		return nullptr;
+	}
+	compatible_render->winid = render->winid;
+	compatible_render->renderTarget = bitmapRenderTarget;
+	return compatible_render;
+}
+
+PAPER_API struct paper_render* paper_render_create_compatible_extendsize(struct paper_render* render)
+{
+	ID2D1BitmapRenderTarget* bitmapRenderTarget = nullptr;
+	HRESULT hr = render->renderTarget->CreateCompatibleRenderTarget(&bitmapRenderTarget);
 	if (FAILED(hr))
 	{
 		return nullptr;

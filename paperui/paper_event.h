@@ -25,7 +25,6 @@ extern "C"
 #define PAPER_EVENT_SIZE		WM_SIZE
 #define PAPER_EVENT_DESTROY		WM_DESTROY
 
-	typedef void (*paper_widget_paint_cb)(struct paper_widget* widget);
 	typedef void (*paper_event_cb)(struct paper_event* e);
 	typedef void (*paper_event_mouse_enter_cb)(struct paper_widget* widget);
 	typedef void (*paper_event_mouse_leave_cb)(struct paper_widget* widget);
@@ -81,7 +80,7 @@ extern "C"
 
 	typedef uint_ptr (__stdcall *handle_event_cb)(struct paper_event* event);
 
-	PAPER_API void paper_set_event_cb(handle_event_cb cb);
+	PAPER_API void paper_set_window_event_cb(handle_event_cb cb);
 
 	PAPER_API handle_event_cb paper_get_event_cb(void);
 

@@ -13,6 +13,7 @@
 struct paper_window
 {
 	void* winid;				//窗口句柄
+	uint8 bTrackingMouse;
 	struct paper_render* render;
 	struct paper_widget_queue* widget_queue;				//控件队列，主要用于渲染和处理事件
 };
@@ -29,14 +30,33 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 		static struct paper_color color = { 1.1f, 1.0f, 1.0f, 1.0f };
 		paper_render_begin_draw(window->render);
 		paper_render_clear(window->render, &color);
-		paper_widget_queue_paint_all(window->widget_queue);
+		struct paper_render* topRender = paper_render_create_compatible_extendsize(window->render);
+		paper_render_begin_draw(topRender);
+		paper_widget_queue_paint_all(window->widget_queue, topRender);
+		paper_render_end_draw(topRender);
+		struct paper_image* image = paper_image_get_from_render(topRender);
+		paper_render_draw_image3(window->render, image);
 		paper_render_end_draw(window->render);
+		paper_image_free(image);
+		paper_render_free(topRender);
 		return 0;
 	}
 	if (event->type == PAPER_EVENT_MOUSEMOVE)
 	{
 		int32 x = GET_X_LPARAM(event->param2);
 		int32 y = GET_Y_LPARAM(event->param2);
+		if (!window->bTrackingMouse)
+		{
+			TRACKMOUSEEVENT tme;
+			tme.cbSize = sizeof(TRACKMOUSEEVENT);
+			tme.dwFlags = TME_LEAVE;			//鼠标离开消息,也可以或上TME_HOVER
+			tme.hwndTrack = window->winid;		//按钮句标
+			tme.dwHoverTime = 1000;				//鼠标离开窗口后间隔1000毫秒触发消息
+			if (TrackMouseEvent(&tme))			//向系统窗口管理器注册鼠标消息
+			{
+				window->bTrackingMouse = 1;
+			}
+		}
 		paper_widget_queue_on_mousemove(window->widget_queue, x, y);
 		return 0;
 	}
@@ -60,6 +80,17 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 		int32 x = GET_X_LPARAM(event->param2);
 		int32 y = GET_Y_LPARAM(event->param2);
 		paper_widget_queue_on_lbutton(window->widget_queue, x, y, 0);
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_MOUSELEAVE)
+	{
+		paper_widget_queue_on_mouseleave(window->widget_queue);
+		window->bTrackingMouse = 0;
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_MOUSEENTER)
+	{
+		window->bTrackingMouse = 0;
 		return 0;
 	}
 	if (event->type == PAPER_EVENT_INIT)
@@ -89,7 +120,7 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 
 void paper_window_set_default_eventcb()
 {
-	paper_set_event_cb(handle_windows_message);
+	paper_set_window_event_cb(handle_windows_message);
 }
 
 struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
