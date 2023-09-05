@@ -67,8 +67,11 @@ extern "C"
 
 	PAPER_API void paper_render_clear(struct paper_render* render, struct paper_color* color);
 
+	/*绘制一张图片，使用输入的坐标来作为绘制位置*/
 	PAPER_API void paper_render_draw_image(struct paper_render* render, struct paper_image* image, int32 x, int32 y, uint32 width, uint32 height);
+	/*绘制一张图片，以0作为X和Y坐标*/
 	PAPER_API void paper_render_draw_image2(struct paper_render* render, struct paper_image* image, uint32 width, uint32 height);
+	/*绘制一张图片，绘制的坐标为0，绘制的区域采用render的大小*/
 	PAPER_API void paper_render_draw_image3(struct paper_render* render, struct paper_image* image);
 
 	PAPER_API void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len,
