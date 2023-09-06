@@ -33,6 +33,8 @@ extern "C"
 	typedef void (*paper_event_keydown_cb)(int key);
 	typedef void (*paper_event_keyup_cb)(int key);
 
+	typedef uint_ptr(__stdcall* handle_event_cb)(struct paper_event* event);
+
 	//可监听基础事件列表
 #define PAPER_LISTEN_EVENT_LBUTTON		0x01
 #define PAPER_LISTEN_EVENT_MOUSEENTER	0x02
@@ -74,11 +76,6 @@ extern "C"
 	PAPER_API uint_ptr paper_event_handle(struct paper_event* event);
 
 	PAPER_API int32 paper_event_dispatch();
-
-	PAPER_API void paper_event_add(struct paper_event* event);
-
-
-	typedef uint_ptr (__stdcall *handle_event_cb)(struct paper_event* event);
 
 	PAPER_API void paper_set_window_event_cb(handle_event_cb cb);
 

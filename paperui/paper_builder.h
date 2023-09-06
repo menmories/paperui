@@ -32,9 +32,9 @@ extern "C"
 		Load_JSON
 	};
 
-	struct paper_builder* paper_builder_load(struct paper_render* render, const char* filename, ELoadType type);
+	PAPER_API struct paper_builder* paper_builder_load(struct paper_render* render, const char* filename, ELoadType type);
 
-	void paper_builder_free(struct paper_builder* builder);
+	PAPER_API void paper_builder_free(struct paper_builder* builder);
 
 #ifdef __cplusplus
 }

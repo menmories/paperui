@@ -44,11 +44,6 @@ int32 paper_event_dispatch()
 	return (int32) msg.wParam;
 }
 
-void paper_event_add(struct paper_event* event)
-{
-
-}
-
 void paper_set_window_event_cb(handle_event_cb cb)
 {
 	handle_window_event = cb;

@@ -305,3 +305,16 @@ void paper_window_add_widget(struct paper_window* window, struct paper_widget* w
 	paper_widget_queue_add(window->widget_queue, widget);
 }
 
+void paer_window_set_cursor(struct paper_window* window, TCHAR* source)
+{
+	HCURSOR hCursor = LoadCursor(NULL, source);
+	SetCursor(hCursor);
+}
+
+void paer_window_set_icon(struct paper_window* window, uint32 sourceid)
+{
+	HICON hicon = LoadIcon(NULL, MAKEINTRESOURCE(sourceid));
+	SendMessage(window->winid, WM_SETICON, ICON_BIG, (LPARAM)hicon);
+	SendMessage(window->winid, WM_SETICON, ICON_SMALL, (LPARAM)hicon);
+}
+
