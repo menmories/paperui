@@ -214,6 +214,7 @@ void paper_window_destroy(struct paper_window* window)
 
 void* paper_window_get_native_id(struct paper_window* window)
 {
+	assert(window);
 	return window->winid;
 }
 
@@ -221,6 +222,7 @@ void paper_window_set_native_id(struct paper_window* window, void* winid)
 {
 	assert(window);
 	assert(winid);
+	window->bTrackingMouse = 0;
 	window->winid = winid;
 }
 
