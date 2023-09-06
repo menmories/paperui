@@ -68,15 +68,12 @@ extern "C"
 		uint_ptr param2;
 	};
 
-
-	extern uint8 paper_key[255];
-
 	PAPER_API int32 paper_event_run(struct paper_event* event);
 
 	PAPER_API uint_ptr paper_event_handle(struct paper_event* event);
-
+	/*分发事件，调用此函数进行阻塞式事件循环*/
 	PAPER_API int32 paper_event_dispatch();
-
+	/*设置窗口事件处理回调*/
 	PAPER_API void paper_set_window_event_cb(handle_event_cb cb);
 
 	PAPER_API handle_event_cb paper_get_event_cb(void);

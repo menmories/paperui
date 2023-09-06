@@ -5,10 +5,8 @@
 #include "paper_widget.h"
 #include "paper_window.h"
 
-static uint8 paper_key[255];
 
 static handle_event_cb handle_window_event;
-
 int32 paper_event_run(struct paper_event* event)
 {
 	//窗口消息事件循环
@@ -52,11 +50,6 @@ void paper_set_window_event_cb(handle_event_cb cb)
 handle_event_cb paper_get_event_cb(void)
 {
 	return handle_window_event;
-}
-
-void paper_event_handle_windows_key(WPARAM wParam, LPARAM lParam)
-{
-
 }
 
 //extern uint_ptr CALLBACK handle_windows_message(struct paper_event* event);

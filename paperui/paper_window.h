@@ -18,15 +18,19 @@ extern "C"
 
 	PAPER_API struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
+	/*从本地窗口HWND获取一个paper_window句柄*/
 	PAPER_API struct paper_window* paper_window_create_from_native_handle(void* handle);
-
+	/*释放从paper_window_create_from_native_handle获取的句柄*/
 	PAPER_API void paper_window_free_form_native_handle(struct paper_window* window);
 	
+	/*销毁窗口*/
 	PAPER_API void paper_window_destroy(struct paper_window* window);
 
 	PAPER_API void* paper_window_get_native_id(struct paper_window* window);
 
 	PAPER_API void paper_window_set_native_id(struct paper_window* window, void* winid);
+
+	PAPER_API void paper_window_set_render(struct paper_window* window, struct paper_render* render);
 
 	PAPER_API void paper_window_free(struct paper_window* window);
 

@@ -28,6 +28,13 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 	if (event->type == PAPER_EVENT_PAINT)
 	{
 		static struct paper_color color = { 1.1f, 1.0f, 1.0f, 1.0f };
+		if (paper_window_is_minimized(window))
+		{
+			paper_render_begin_draw(window->render);
+			paper_render_end_draw(window->render);
+			ValidateRect(window->winid, NULL);
+			return 0;
+		}
 		paper_render_begin_draw(window->render);
 		paper_render_clear(window->render, &color);
 		struct paper_render* topRender = paper_render_create_compatible_extendsize(window->render);
@@ -215,6 +222,13 @@ void paper_window_set_native_id(struct paper_window* window, void* winid)
 	assert(window);
 	assert(winid);
 	window->winid = winid;
+}
+
+PAPER_API void paper_window_set_render(struct paper_window* window, struct paper_render* render)
+{
+	assert(window);
+	assert(render);
+	window->render = render;
 }
 
 void paper_window_free(struct paper_window* window)

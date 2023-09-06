@@ -50,21 +50,26 @@ extern "C"
 	/*当不再使用渲染器时可使用此函数销毁渲染器*/
 	PAPER_API void paper_render_destroyenv(void);
 
+	/*从本地HWND窗口句柄创建一个渲染器*/
 	PAPER_API struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height);
 
 	PAPER_API void paper_render_free(struct paper_render* render);
 
+	/*当窗口大小发生改变时必须调用此函数更新绘制区域大小*/
 	PAPER_API void paper_render_resize(struct paper_render* render, uint32 width, uint32 height);
 
+	/*使目标窗口区域发生重绘，当需要更新绘制目标区域时使用*/
 	PAPER_API void paper_render_invalid(struct paper_render* render);
+	/*使目标窗口不再发生重绘，主要目的是节省绘制资源，在需要的时候再进行绘制*/
+	PAPER_API void paper_render_valid(struct paper_render* render);
 
 	/*
 	* 功能：开始绘图，必须要在绘制之前调用才能开始绘图，绘制结束后调用paper_render_end_draw以结束绘图
 	*/
 	PAPER_API void paper_render_begin_draw(struct paper_render* render);
-
+	/*当无需绘图过后，调用此函数结束绘图*/
 	PAPER_API void paper_render_end_draw(struct paper_render* render);
-
+	/*将绘制目标清理成一种颜色*/
 	PAPER_API void paper_render_clear(struct paper_render* render, struct paper_color* color);
 
 	/*绘制一张图片，使用输入的坐标来作为绘制位置*/
@@ -74,13 +79,16 @@ extern "C"
 	/*绘制一张图片，绘制的坐标为0，绘制的区域采用render的大小*/
 	PAPER_API void paper_render_draw_image3(struct paper_render* render, struct paper_image* image);
 
+	/*绘制一段字符文本*/
 	PAPER_API void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len,
 		struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush);
 
+	/*绘制一条直线*/
 	PAPER_API void paper_render_draw_line(struct paper_render* render, struct paper_point* start, struct paper_point* end, struct paper_brush* brush, float stroke, enum paper_line_type type);
 
 	PAPER_API void paper_render_draw_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush);
 
+	/*覆盖窗口一片区域为指定颜色*/
 	PAPER_API void paper_render_fill_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush);
 
 	/*
@@ -92,7 +100,7 @@ extern "C"
 	* @param stroke 绘制的线粗（默认可填1.0f）
 	*/
 	PAPER_API void paper_render_draw_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush, float stroke);
-
+	/*覆盖一个圆角矩形*/
 	PAPER_API void paper_render_fill_roundrectangle(struct paper_render* render, struct paper_rect* rect, struct paper_point* radius, struct paper_brush* brush);
 	/*绘制一个圆*/
 	PAPER_API void paper_render_draw_ellipse(struct paper_render* render, struct paper_point* center, float radius_x, float radius_y, struct paper_brush* brush, float stroke);
@@ -109,10 +117,12 @@ extern "C"
 	PAPER_API struct paper_render* paper_render_create_compatible_extendsize(struct paper_render* render);
 	
 	/*image load*/
+	/*从compatible render获取一个位图*/
 	PAPER_API struct paper_image* paper_image_get_from_render(struct paper_render* render);
 
+	/*从文件读取一张图片，支持目前常用的jpg、bmp、png等格式*/
 	PAPER_API struct paper_image*  paper_image_load_from_file(struct paper_render* render, const char* filename);
-
+	/*从内存读取一张图片*/
 	PAPER_API struct paper_image* paper_image_load_from_memory(struct paper_render* render, void* data, uint32 len);
 
 	PAPER_API void paper_image_free(struct paper_image* image);
@@ -120,7 +130,7 @@ extern "C"
 
 	/*brush*/
 	PAPER_API struct paper_brush* paper_brush_create_solid(struct paper_render* render, struct paper_color* color);
-
+	/*创建一个线性渐变画刷*/
 	PAPER_API struct paper_brush* paper_brush_create_lineargradient(struct paper_render* render, struct paper_gradient_stop* attributes, uint32 count, struct paper_gradient_pos* pos);
 
 	//创建一个位图画刷

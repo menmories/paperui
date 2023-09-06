@@ -153,6 +153,11 @@ void paper_render_invalid(struct paper_render* render)
 	InvalidateRect((HWND)render->winid, nullptr, FALSE);
 }
 
+void paper_render_valid(struct paper_render* render)
+{
+	ValidateRect((HWND)render->winid, nullptr);
+}
+
 void paper_render_begin_draw(struct paper_render* render)
 {
 	render->renderTarget->BeginDraw();

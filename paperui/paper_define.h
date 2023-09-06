@@ -1,8 +1,6 @@
 #ifndef __PAPER_DEFINE_H__
 #define __PAPER_DEFINE_H__
 
-#include <stdint.h>
-#include <assert.h>
 #ifdef __cplusplus
 extern "C"
 {
@@ -10,6 +8,9 @@ extern "C"
 #ifdef _MSC_VER
 #include <tchar.h>
 #endif
+
+#include <stdint.h>
+#include <assert.h>
 
 #ifdef _WIN64
 	typedef int32_t		int32;
