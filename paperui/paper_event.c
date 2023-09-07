@@ -4,7 +4,7 @@
 #include <tchar.h>
 #include "paper_widget.h"
 #include "paper_window.h"
-
+#include <stdio.h>
 
 static handle_event_cb handle_window_event;
 int32 paper_event_run(struct paper_event* event)

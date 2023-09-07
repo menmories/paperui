@@ -90,4 +90,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="libpaperui.def">
+      <Filter>源文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>

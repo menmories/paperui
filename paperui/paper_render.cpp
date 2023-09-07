@@ -78,6 +78,7 @@ int paper_render_initenv(void)
 	//HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 	if (FAILED(CoInitialize(NULL)))
 	{
+		printf("CoInitialize failed!error:\n");
 		return -1;
 	}
 	HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &Direct2DFactory);

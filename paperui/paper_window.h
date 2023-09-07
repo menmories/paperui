@@ -16,6 +16,10 @@ extern "C"
 
 	PAPER_API struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
+	PAPER_API struct paper_window* paper_window_create2(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height);
+
+	PAPER_API struct paper_window* paper_window_create3(int32 x, int32 y, uint32 width, uint32 height);
+
 	PAPER_API struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
 	/*从本地窗口HWND获取一个paper_window句柄*/

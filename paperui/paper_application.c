@@ -3,7 +3,7 @@
 #include "paper_render.h"
 #include "paper_event.h"
 #include "paper_window.h"
-
+#include <stdio.h>
 
 static int8* szPath = NULL;
 static uint32 uPathLen = 0;

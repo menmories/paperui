@@ -135,6 +135,16 @@ struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 
 	return paper_window_create_native(szTitle, paper_wnd_proc, x, y, width, height, parent);
 }
 
+struct paper_window* paper_window_create2(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height)
+{
+	return paper_window_create_native(szTitle, paper_wnd_proc, x, y, width, height, NULL);
+}
+
+struct paper_window* paper_window_create3(int32 x, int32 y, uint32 width, uint32 height)
+{
+	return paper_window_create_native(L"", paper_wnd_proc, x, y, width, height, NULL);
+}
+
 struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
 {
 	WNDCLASS wc = { 0 };
