@@ -212,14 +212,14 @@ struct paper_widget_image* paper_widget_image_create(struct paper_widget_init_st
 
 void paper_widget_image_paint(struct paper_widget_image* widget, struct paper_render* render, const struct paper_rect* rcpaint)
 {
-	if (widget)
-	{
-		paper_render_draw_image(render, widget->image,
-			rcpaint->left, 
-			rcpaint->top,
-			rcpaint->right - widget->base.rect.left,
-			rcpaint->bottom - widget->base.rect.top);
-	}
+	//rcpaint == ¿É»æÖÆÇøÓò
+	assert(widget);
+	struct paper_widget* base = (struct paper_widget*)widget;
+	paper_render_draw_image(render, widget->image,
+		base->rect.left,
+		base->rect.top,
+		base->rect.right - widget->base.rect.left,
+		base->rect.bottom - widget->base.rect.top);
 }
 
 void paper_widget_image_free(struct paper_widget_image* widget)
@@ -434,7 +434,7 @@ void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue, struc
 	struct paper_widget* widget = widget_queue->first_widget;
 	while (widget)
 	{
-		widget->paint(widget, render, &widget->rect);
+		widget->paint(widget, render, &widget_queue->paint_rect);
 		widget = widget->next;
 	}
 }
