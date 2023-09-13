@@ -189,7 +189,7 @@ void initui(struct paper_window* window)
     struct paper_widget_image* image_widget = paper_widget_image_create(NULL, image);
     paper_widget_set_render((struct paper_widget*)image_widget, render);
 	paper_rect_set_pos(&((struct paper_widget*)(image_widget))->rect, 100, 100);
-	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, 360, 560);
+	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, 380, 560);
     paper_window_add_widget(window, (struct paper_widget*)image_widget);
 
     /*for (int32 i = 0; i < 20; i++)

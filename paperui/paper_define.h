@@ -41,8 +41,16 @@ extern "C"
 #else
 #define PAPER_API
 #endif
+/*
+#ifdef PAPER_PLATFORM_WINDOWS
+#define PAPER_CALL __stdcall
 
+#elif defined PAPER_PLATFORM_LINUX
+#define PAPER_CALL __attribute__((__stdcall__))
 
+#else
+#define PAPER_CALL
+#endif*/
 
 #ifdef __cplusplus
 }

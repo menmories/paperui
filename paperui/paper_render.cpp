@@ -196,7 +196,7 @@ void paper_render_draw_image3(struct paper_render* render, struct paper_image* i
 	render->renderTarget->DrawBitmap(image->bitmap, destRect);
 }
 
-void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len, struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush)
+void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len, const struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush)
 {
 	assert(render && szText && rect && font && brush);
 	render->renderTarget->DrawText(szText,
@@ -239,13 +239,13 @@ void paper_render_draw_line(struct paper_render* render, struct paper_point* sta
 	render->renderTarget->DrawLine(D2D1::Point2F((float)start->x, (float)start->y), D2D1::Point2F((float)end->x, (float)end->y), brush->brush, stroke, pStrokeStyle);
 }
 
-void paper_render_draw_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush)
+void paper_render_draw_rectangle(struct paper_render* render, const struct paper_rect* rect, struct paper_brush* brush)
 {
 	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)rect->right, (float)rect->bottom };
 	render->renderTarget->DrawRectangle(rc, brush->brush);
 }
 
-void paper_render_fill_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush)
+void paper_render_fill_rectangle(struct paper_render* render, const struct paper_rect* rect, struct paper_brush* brush)
 {
 	//D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
 	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)rect->right, (float)rect->bottom };

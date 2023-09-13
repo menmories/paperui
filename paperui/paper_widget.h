@@ -59,6 +59,8 @@ extern "C"
 		uint32 events;
 		struct paper_render* render;
 		struct paper_widget* parent;
+		struct paper_widget* prev;
+		struct paper_widget* next;
 	};
 
 	struct paper_widget_init_struct
@@ -115,6 +117,7 @@ extern "C"
 	struct paper_widget_button
 	{
 		struct paper_widget_overlay base;
+		struct paper_brush* current_brush;
 		struct paper_brush* normal_brush;
 		struct paper_brush* hot_brush;
 		struct paper_brush* pushed_brush;
@@ -130,7 +133,9 @@ extern "C"
 	{
 		struct paper_rect paint_rect;		//当前widget在窗口绘制的区域
 		struct paper_widget* enter_widget;	//鼠标进入的widget
-		struct paper_vector* widgets;		//渲染/事件触发队列
+		struct paper_widget* first_widget;		//渲染/事件触发队列
+		struct paper_widget* last_widget;
+		uint32 widget_count;
 	};
 
 	
@@ -175,6 +180,7 @@ extern "C"
 
 	PAPER_API struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
 	PAPER_API void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint);
+	PAPER_API void paper_widget_text_free(struct paper_widget_text* text);
 	/*button控件实现*/
 	PAPER_API struct paper_widget_button* paper_widget_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
 	PAPER_API void paper_widget_button_paint(struct paper_widget_button* button, struct paper_render* render, const struct paper_rect* rcpaint);
@@ -202,6 +208,7 @@ extern "C"
 	PAPER_API void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue, struct paper_render* render);
 	PAPER_API struct paper_widget_queue* paper_widget_queue_create(uint32 width, uint32 height);
 	PAPER_API void paper_widget_queue_add(struct paper_widget_queue* widget_queue, struct paper_widget* widget);
+	PAPER_API void paper_widget_queue_remove(struct paper_widget_queue* widget_queue, struct paper_widget* widget);
 	PAPER_API void paper_widget_queue_free(struct paper_widget_queue* widget_queue);
 	PAPER_API void paper_widget_queue_clear(struct paper_widget_queue* widget_queue);
 

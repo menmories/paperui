@@ -237,20 +237,28 @@ struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_stru
 	}
 	assert(text);
 	text_widget->text_font = paper_font_create(L"黑体", 14.0f, 400, L"zh-cn");
-	text_widget->text = (int8*)malloc(sizeof(wchar_t) * len + 2);
+	text_widget->text = (wchar_t*)malloc(sizeof(wchar_t) * len + 2);
 	text_widget->text_len = len;
 	struct paper_color color = { 0.1f, 0.1f, 0.1f, 1.0f };
 	text_widget->text_brush = paper_brush_create_solid(render, &color);
 	if (text_widget->text)
 	{
-		strcpy(text_widget->text, text);
+		wcscpy(text_widget->text, text);
 	}
-	return text;
+	return text_widget;
 }
 
 void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint)
 {
 	paper_render_draw_text(render, text->text, text->text_len, rcpaint, text->text_font, text->text_brush);
+}
+
+void paper_widget_text_free(struct paper_widget_text* text)
+{
+	free(text->text);
+	paper_font_free(text->text_font);
+	paper_brush_free(text->text_brush);
+	free(text);
 }
 
 struct paper_widget_button* paper_widget_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)
@@ -267,6 +275,7 @@ struct paper_widget_button* paper_widget_button_create(struct paper_widget_init_
 		PAPER_LISTEN_EVENT_MOUSEENTER | 
 		PAPER_LISTEN_EVENT_MOUSELEAVE);
 	widget->paint = (paper_widget_paint_cb)paper_widget_button_paint;
+	button->current_brush = button->normal_brush;
 	return button;
 }
 
@@ -275,10 +284,10 @@ void paper_widget_button_paint(struct paper_widget_button* button, struct paper_
 	struct paper_render* comp_render = paper_render_create_compatible(render, paper_rect_get_width(rcpaint), paper_rect_get_height(rcpaint));
 	paper_render_begin_draw(comp_render);
 	//paint background
-	
+	paper_render_fill_rectangle(render, rcpaint, button->current_brush);
 	
 	//paint text
-	paper_widget_text_paint(button, comp_render, rcpaint);
+	paper_widget_text_paint((struct paper_widget_text*)button, comp_render, rcpaint);
 
 	//end draw
 	paper_render_end_draw(comp_render);
@@ -413,14 +422,20 @@ void paper_widget_overlay_slot_free(struct paper_widget_overlay_slot* slot)
 
 void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue, struct paper_render* render)
 {
-	uint32 count = paper_vector_get_count(widget_queue->widgets);
-	for (uint32 i = 0; i < count; i++)
+	//uint32 count = paper_vector_get_count(widget_queue->widgets);
+	//for (uint32 i = 0; i < count; i++)
+	//{
+	//	struct paper_widget* widget = NULL;
+	//	paper_vector_get_value(widget_queue->widgets, i, &widget);
+	//	assert(widget);
+	//	assert(widget->paint);		//防止渲染回调没有赋值
+	//	widget->paint(widget, render, &widget->rect);
+	//}
+	struct paper_widget* widget = widget_queue->first_widget;
+	while (widget)
 	{
-		struct paper_widget* widget = NULL;
-		paper_vector_get_value(widget_queue->widgets, i, &widget);
-		assert(widget);
-		assert(widget->paint);		//防止渲染回调没有赋值
 		widget->paint(widget, render, &widget->rect);
+		widget = widget->next;
 	}
 }
 
@@ -435,85 +450,104 @@ struct paper_widget_queue* paper_widget_queue_create(uint32 width, uint32 height
 	widget_queue->paint_rect.top = 0;
 	widget_queue->paint_rect.right = width;
 	widget_queue->paint_rect.bottom = height;
-	widget_queue->widgets = paper_vector_create(sizeof(struct paper_widget*));
 	widget_queue->enter_widget = NULL;
+	widget_queue->first_widget = NULL;
+	widget_queue->last_widget = NULL;
+	widget_queue->widget_count = 0;
 	return widget_queue;
 }
 
 void paper_widget_queue_add(struct paper_widget_queue* widget_queue, struct paper_widget* widget)
 {
-	paper_vector_add(widget_queue->widgets, &widget);
-	//if (widget_queue->count > 1)
-	//{
-	//	widget_queue->end->next = widget;
-	//	widget->prev = widget_queue->end;
-	//	widget_queue->end = widget;
-	//	widget_queue->count++;
-	//	return;
-	//}
-	//if (!widget_queue->head)
-	//{
-	//	widget_queue->head = widget;
-	//	widget_queue->count = 1;
-	//	return;
-	//}
-	//if (!widget_queue->end)
-	//{
-	//	widget_queue->end = widget;
-	//	widget_queue->end->prev = widget_queue->head;
-	//	widget_queue->head->next = widget_queue->end;
-	//	widget_queue->count++;
-	//	return;
-	//}
+	//paper_vector_add(widget_queue->widgets, &widget);
+	assert(widget);
+	if (widget_queue->widget_count == 0)
+	{
+		widget_queue->widget_count++;
+		widget_queue->first_widget = widget;
+		widget_queue->first_widget->prev = NULL;
+		widget_queue->first_widget->next = NULL;
+		return;
+	}
+	if (widget_queue->widget_count == 1)
+	{
+		widget_queue->widget_count++;
+		widget_queue->last_widget = widget;
+		widget_queue->first_widget->next = widget_queue->last_widget;
+		widget_queue->first_widget->prev = NULL;
+		widget_queue->last_widget->next = NULL;
+		return;
+	}
+	widget_queue->widget_count++;
+	widget_queue->last_widget->next = widget;
+	widget->prev = widget_queue->last_widget;
+	widget->next = NULL;
+	widget_queue->last_widget = widget;
+}
+
+void paper_widget_queue_remove(struct paper_widget_queue* widget_queue, struct paper_widget* widget)
+{
+
 }
 
 void paper_widget_queue_free(struct paper_widget_queue* widget_queue)
 {
-	uint32 count = paper_vector_get_count(widget_queue->widgets);
-	for (uint32 i = 0; i < count; i++)
-	{
-		struct paper_widget* widget = NULL;
-		paper_vector_get_value(widget_queue->widgets, i, &widget);
-		free(widget);
-	}
-	paper_vector_free(widget_queue->widgets);
-
-
-	/*struct paper_widget* widget = widget_queue->head;
+	struct paper_widget* widget = widget_queue->first_widget;
 	while (widget)
 	{
 		struct paper_widget* temp = widget;
 		widget = widget->next;
 		free(temp);
 	}
-	free(widget_queue);*/
+	free(widget_queue);
 }
 
 void paper_widget_queue_clear(struct paper_widget_queue* widget_queue)
 {
-	uint32 count = paper_vector_get_count(widget_queue->widgets);
+	struct paper_widget* widget = widget_queue->first_widget;
+	while (widget)
+	{
+		struct paper_widget* temp = widget;
+		widget = widget->next;
+		temp->free_widget(temp);
+	}
+
+
+	/*uint32 count = paper_vector_get_count(widget_queue->widgets);
 	for (uint32 i = 0; i < count; i++)
 	{
 		struct paper_widget* widget = NULL;
 		paper_vector_pop_back(widget_queue->widgets, &widget);
 		free(widget);
-	}
+	}*/
 }
 
 void paper_widget_queue_on_resize(struct paper_widget_queue* widget_queue, int32 width, int32 height)
 {
 	paper_rect_set_size(&widget_queue->paint_rect, width, height);
-	uint32 count = paper_vector_get_count(widget_queue->widgets);
-	for (uint32 i = 0; i < count; i++)
+	struct paper_widget* widget = widget_queue->first_widget;
+	while (widget)
 	{
-		struct paper_widget* widget = NULL;
-		paper_vector_get_value(widget_queue->widgets, i, &widget);
 		if (widget->listen_events & PAPER_LISTEN_EVENT_RESIZE)
 		{
 			assert(widget->on_resize);		//防止渲染回调没有赋值
 			widget->on_resize(widget, width, height);
 		}
+		widget = widget->next;
 	}
+
+	
+	//uint32 count = paper_vector_get_count(widget_queue->widgets);
+	//for (uint32 i = 0; i < count; i++)
+	//{
+	//	struct paper_widget* widget = NULL;
+	//	paper_vector_get_value(widget_queue->widgets, i, &widget);
+	//	if (widget->listen_events & PAPER_LISTEN_EVENT_RESIZE)
+	//	{
+	//		assert(widget->on_resize);		//防止渲染回调没有赋值
+	//		widget->on_resize(widget, width, height);
+	//	}
+	//}
 }
 
 void paper_widget_queue_on_mousemove(struct paper_widget_queue* widget_queue, int32 x, int32 y)
@@ -578,7 +612,7 @@ void paper_widget_queue_on_mouseleave(struct paper_widget_queue* widget_queue)
 
 struct paper_widget* paper_widget_queue_findpoint(struct paper_widget_queue* widget_queue, struct paper_point* pt)
 {
-	uint32 count = paper_vector_get_count(widget_queue->widgets);
+	/*uint32 count = paper_vector_get_count(widget_queue->widgets);
 	for (uint32 i = 0; i < count; i++)
 	{
 		struct paper_widget* widget = NULL;
@@ -591,31 +625,34 @@ struct paper_widget* paper_widget_queue_findpoint(struct paper_widget_queue* wid
 			}
 		}
 	}
-	return NULL;
+	return NULL;*/
 
-	//struct paper_widget* widget = widget_queue->head;
-	//while (widget)
-	//{
-	//	if (widget->listen_events & PAPER_LISTEN_EVENT_LBUTTON)
-	//	{
-	//		if (widget->pt_in_region(widget, pt))
-	//		{
-	//			struct paper_point ptchild;
-	//			paper_widget_convert_point(widget, pt, &ptchild);
-	//			struct paper_widget* p = paper_widget_findpointinchild(widget->child, &ptchild);
-	//			if (p)
-	//			{
-	//				return p;
-	//			}
-	//			else
-	//			{
-	//				return widget;
-	//			}
-	//		}
-	//	}
-	//	widget = widget->next;
-	//}
-	//return NULL;
+	struct paper_widget* widget = widget_queue->first_widget;
+	while (widget)
+	{
+		if (widget->listen_events & PAPER_LISTEN_EVENT_LBUTTON)
+		{
+			struct paper_widget* p = widget->pt_in_region(widget, &widget_queue->paint_rect, pt);
+			if (p)
+			{
+				return p;
+				//struct paper_point ptchild;
+				//paper_widget_convert_point(widget, pt, &ptchild);
+				//struct paper_widget* p = paper_widget_findpointinchild(widget->child, &ptchild);
+				//if (p)
+				//{
+				//	return p;
+				//}
+				//else
+				//{
+				//	return widget;
+				//}
+			}
+			return widget;
+		}
+		widget = widget->next;
+	}
+	return NULL;
 }
 
 void paper_widget_convert_point(struct paper_widget* widget, const struct paper_point* pt, struct paper_point* outpt)

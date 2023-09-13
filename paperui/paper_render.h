@@ -81,15 +81,15 @@ extern "C"
 
 	/*绘制一段字符文本*/
 	PAPER_API void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len,
-		struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush);
+		const struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush);
 
 	/*绘制一条直线*/
 	PAPER_API void paper_render_draw_line(struct paper_render* render, struct paper_point* start, struct paper_point* end, struct paper_brush* brush, float stroke, enum paper_line_type type);
 
-	PAPER_API void paper_render_draw_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush);
+	PAPER_API void paper_render_draw_rectangle(struct paper_render* render, const struct paper_rect* rect, struct paper_brush* brush);
 
 	/*覆盖窗口一片区域为指定颜色*/
-	PAPER_API void paper_render_fill_rectangle(struct paper_render* render, struct paper_rect* rect, struct paper_brush* brush);
+	PAPER_API void paper_render_fill_rectangle(struct paper_render* render, const struct paper_rect* rect, struct paper_brush* brush);
 
 	/*
 	* @功能：绘制一个圆角矩形
