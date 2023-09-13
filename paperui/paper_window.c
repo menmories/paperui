@@ -14,6 +14,7 @@ struct paper_window
 {
 	void* winid;				//窗口句柄
 	uint8 bTrackingMouse;
+	struct paper_color clear_color;
 	struct paper_render* render;
 	struct paper_widget_queue* widget_queue;				//控件队列，主要用于渲染和处理事件
 };
@@ -27,7 +28,7 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 	struct paper_window* window = event->source;
 	if (event->type == PAPER_EVENT_PAINT)
 	{
-		static struct paper_color color = { 1.1f, 1.0f, 1.0f, 1.0f };
+		//static struct paper_color color = { 1.1f, 1.0f, 1.0f, 1.0f };
 		if (paper_window_is_minimized(window))
 		{
 			paper_render_begin_draw(window->render);
@@ -36,7 +37,7 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 			return 0;
 		}
 		paper_render_begin_draw(window->render);
-		paper_render_clear(window->render, &color);
+		paper_render_clear(window->render, &window->clear_color);
 		struct paper_render* topRender = paper_render_create_compatible_extendsize(window->render);
 		paper_render_begin_draw(topRender);
 		paper_widget_queue_paint_all(window->widget_queue, topRender);
@@ -79,14 +80,42 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 	{
 		int32 x = GET_X_LPARAM(event->param2);
 		int32 y = GET_Y_LPARAM(event->param2);
-		paper_widget_queue_on_lbutton(window->widget_queue, x, y, 1);
+		paper_widget_queue_on_mousebutton(window->widget_queue, VK_LBUTTON, x, y, 1);
 		return 0;
 	}
 	if (event->type == PAPER_EVENT_LBUTTONUP)
 	{
 		int32 x = GET_X_LPARAM(event->param2);
 		int32 y = GET_Y_LPARAM(event->param2);
-		paper_widget_queue_on_lbutton(window->widget_queue, x, y, 0);
+		paper_widget_queue_on_mousebutton(window->widget_queue, VK_LBUTTON, x, y, 0);
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_MBUTTONDOWN)
+	{
+		int32 x = GET_X_LPARAM(event->param2);
+		int32 y = GET_Y_LPARAM(event->param2);
+		paper_widget_queue_on_mousebutton(window->widget_queue, VK_MBUTTON, x, y, 1);
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_MBUTTONUP)
+	{
+		int32 x = GET_X_LPARAM(event->param2);
+		int32 y = GET_Y_LPARAM(event->param2);
+		paper_widget_queue_on_mousebutton(window->widget_queue, VK_MBUTTON, x, y, 0);
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_RBUTTONDOWN) 
+	{
+		int32 x = GET_X_LPARAM(event->param2);
+		int32 y = GET_Y_LPARAM(event->param2);
+		paper_widget_queue_on_mousebutton(window->widget_queue, VK_RBUTTON, x, y, 1);
+		return 0;
+	}
+	if (event->type == PAPER_EVENT_RBUTTONUP)
+	{
+		int32 x = GET_X_LPARAM(event->param2);
+		int32 y = GET_Y_LPARAM(event->param2);
+		paper_widget_queue_on_mousebutton(window->widget_queue, VK_RBUTTON, x, y, 0);
 		return 0;
 	}
 	if (event->type == PAPER_EVENT_MOUSELEAVE)
@@ -105,8 +134,10 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 		//在此处初始化渲染队列
 		RECT rcClient;
 		GetClientRect((HWND)window->winid, &rcClient);
-		window->render = paper_render_create(window->winid, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top);
-		window->widget_queue = paper_widget_queue_create();
+		uint32 width = rcClient.right - rcClient.left;
+		uint32 height = rcClient.bottom - rcClient.top;
+		window->render = paper_render_create(window->winid, width, height);
+		window->widget_queue = paper_widget_queue_create(width, height);
 		window_count++;		//窗口创建成功，窗口引用计数+1
 		return 0;
 	}
@@ -179,6 +210,10 @@ struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC 
 	rcWindow.bottom = y + height;
 	HWND hParent = parent ? parent->winid : NULL;
 	AdjustWindowRectEx(&rcWindow, dwStyle, FALSE, dwExStyle);		//将客户区大小转化为参数指定的大小
+	window->clear_color.r = 1.0f;
+	window->clear_color.g = 1.0f;
+	window->clear_color.b = 1.0f;
+	window->clear_color.a = 1.0f;
 	//12个参数
 	HWND hWnd = CreateWindowEx(0, 
 		DEFAULT_WINDOW_CLASSNAME, 
@@ -236,11 +271,16 @@ void paper_window_set_native_id(struct paper_window* window, void* winid)
 	window->winid = winid;
 }
 
-PAPER_API void paper_window_set_render(struct paper_window* window, struct paper_render* render)
+void paper_window_set_render(struct paper_window* window, struct paper_render* render)
 {
 	assert(window);
 	assert(render);
 	window->render = render;
+}
+
+void paper_window_set_clearcolor(struct paper_window* window, struct paper_color* color)
+{
+	memcpy(&window->clear_color, color, sizeof(struct paper_color));
 }
 
 void paper_window_free(struct paper_window* window)

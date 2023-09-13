@@ -42,6 +42,8 @@ int main(int argc, char** argv)
     window = paper_window_create(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
     //初始化你的UI
     initui(window);
+    struct paper_color color = { 0.5f, 0.8f, 0.1f, 1.0f };
+    paper_window_set_clearcolor(window, &color);
     paper_window_center_screen(window);
     paper_window_show(window);
     return paper_application_run();
@@ -144,9 +146,9 @@ void initui(struct paper_window* window)
     widget->render = render;
     struct paper_color color = {0.1f, 1.0f, 1.0f, 1.0f};
     struct paper_color color2 = { 0.0f, 0.5f, 1.0f, 1.0f };
-    widget->background1 = paper_brush_create_solid(render, &color);
+    /*widget->background1 = paper_brush_create_solid(render, &color);
     widget->background2 = paper_brush_create_solid(render, &color2);
-    widget->background = widget->background1;
+    widget->background = widget->background1;*/
     /*
     paper_rect_set_pos(&widget->rect, 10, 10);
     paper_rect_set_size(&widget->rect, 120, 50);
@@ -190,7 +192,7 @@ void initui(struct paper_window* window)
 	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, 360, 560);
     paper_window_add_widget(window, (struct paper_widget*)image_widget);
 
-    for (int32 i = 0; i < 20; i++)
+    /*for (int32 i = 0; i < 20; i++)
     {
         for (int32 j = 0; j < 40; j++)
         {
@@ -204,5 +206,5 @@ void initui(struct paper_window* window)
 			paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
 			paper_window_add_widget(window, widget);
         }
-    }
+    }*/
 }

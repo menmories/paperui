@@ -15,6 +15,10 @@ extern "C"
 #define PAPER_EVENT_MOUSEMOVE	WM_MOUSEMOVE
 #define PAPER_EVENT_LBUTTONDOWN WM_LBUTTONDOWN
 #define PAPER_EVENT_LBUTTONUP	WM_LBUTTONUP
+#define PAPER_EVENT_MBUTTONDOWN WM_MBUTTONDOWN
+#define PAPER_EVENT_MBUTTONUP	WM_MBUTTONUP
+#define PAPER_EVENT_RBUTTONDOWN WM_RBUTTONDOWN
+#define PAPER_EVENT_RBUTTONUP	WM_RBUTTONUP
 #define PAPER_EVENT_MOUSELEAVE	WM_MOUSELEAVE
 #define PAPER_EVENT_MOUSEENTER	WM_MOUSEHOVER
 #define PAPER_EVENT_MOUSEWHEEL	WM_MOUSEWHEEL
@@ -29,7 +33,7 @@ extern "C"
 	typedef void (*paper_event_mouse_enter_cb)(struct paper_widget* widget);
 	typedef void (*paper_event_mouse_leave_cb)(struct paper_widget* widget);
 	typedef void (*paper_event_resize_cb)(struct paper_widget* widget, int32 width, int32 height);		//窗口大小改变时触发此回调
-	typedef void (*paper_event_lbutton_cb)(struct paper_widget* widget, int32 x, int32 y, int8 state);
+	typedef void (*paper_event_mousebutton_cb)(struct paper_widget* widget, uint32 button, int32 x, int32 y, int8 state);
 	typedef void (*paper_event_keydown_cb)(int key);
 	typedef void (*paper_event_keyup_cb)(int key);
 
@@ -48,7 +52,7 @@ extern "C"
 		paper_event_mouse_enter_cb	on_mouse_enter;
 		paper_event_mouse_leave_cb	on_mouse_leave;
 		paper_event_resize_cb		on_resize;
-		paper_event_lbutton_cb		on_lbutton;
+		paper_event_mousebutton_cb	on_mousebutton;
 	};
 
 	struct paper_event_queue

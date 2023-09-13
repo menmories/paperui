@@ -93,26 +93,22 @@ void paper_vector_right_move_element(struct paper_vector* vec)
 
 void paper_vector_remove(struct paper_vector* vec)
 {
-    if (vec->element_count > 0)
-    {
-        vec->element_count--;
-    }
+    assert(vec->element_count > 0);
+    vec->element_count--;
 }
 
 void paper_vector_remove_front(struct paper_vector* vec)
 {
-	if (vec->element_count > 0)
-	{
-        uint32 copyed_size = vec->element_count - 1;
-        memcpy(vec->block, vec->block + vec->element_size, copyed_size);
-		vec->element_count = copyed_size;
-	}
+    assert(vec->element_count > 0);
+    uint32 copyed_size = vec->element_count - 1;
+    memcpy(vec->block, vec->block + vec->element_size, copyed_size * vec->element_size);
+	vec->element_count = copyed_size;
 }
 
 void paper_vector_get_value(struct paper_vector* vec, uint32 pos, void* data)
 {
     uint32 real_pos = vec->element_size * pos;
-    memcpy(data, vec->block, real_pos);
+    memcpy(data, vec->block + real_pos, vec->element_size);
 }
 
 void paper_vector_pop_front(struct paper_vector* vec, void* data)

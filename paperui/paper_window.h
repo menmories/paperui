@@ -36,6 +36,8 @@ extern "C"
 
 	PAPER_API void paper_window_set_render(struct paper_window* window, struct paper_render* render);
 
+	PAPER_API void paper_window_set_clearcolor(struct paper_window* window, struct paper_color* color);
+
 	PAPER_API void paper_window_free(struct paper_window* window);
 
 	PAPER_API void paper_window_show(struct paper_window* window);

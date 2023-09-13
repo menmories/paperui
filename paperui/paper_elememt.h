@@ -34,9 +34,9 @@ extern "C"
 
 	PAPER_API void paper_rect_set_width(struct paper_rect* rect, int32 width);
 
-	PAPER_API int32 paper_rect_get_width(struct paper_rect* rect);
+	PAPER_API int32 paper_rect_get_width(const struct paper_rect* rect);
 
-	PAPER_API int32 paper_rect_get_height(struct paper_rect* rect);
+	PAPER_API int32 paper_rect_get_height(const struct paper_rect* rect);
 
 	PAPER_API void paper_rect_set_height(struct paper_rect* rect, int32 height);
 
@@ -49,7 +49,7 @@ extern "C"
 	* @return 
 	* 在区域范围内返回1，否则返回0
 	*/
-	PAPER_API int8 paper_rect_pt_in(struct paper_rect* rect, int32 x, int32 y);
+	PAPER_API int8 paper_rect_pt_in(const struct paper_rect* rect, int32 x, int32 y);
 
 #ifdef __cplusplus
 }
