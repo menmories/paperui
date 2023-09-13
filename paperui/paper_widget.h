@@ -42,6 +42,9 @@ extern "C"
 	typedef struct paper_widget* (*paper_widget_pt_in_region_cb)(struct paper_widget* widget, const struct paper_rect* rcpaint, struct paper_point* pt);
 	typedef void (*paper_widget_free_cb)(struct paper_widget* widget);
 
+	struct paper_overlay_slot;
+	struct paper_overlay;
+
 	struct paper_widget
 	{
 		paper_widget_paint_cb			paint;				//绘图回调
@@ -96,17 +99,18 @@ extern "C"
 		struct paper_widget base;
 	};
 
-	struct paper_widget_overlay
+	struct paper_overlay
 	{
 		struct paper_widget base;
 		enum paper_valign_type valign;	    //垂直对齐
 		enum paper_halign_type halign;	    //水平对齐
-		struct paper_vector* slots;			//slots vector
+		struct paper_overlay_slot* slot_begin;			//slots vector
+		struct paper_overlay_slot* slot_end;
 		//struct paper_widget* child;			//slot child
 	};
 
 	//overlay的插槽
-	struct paper_widget_overlay_slot 
+	struct paper_overlay_slot
 	{
 		struct paper_widget base;
 		enum paper_valign_type valign;	    //垂直对齐
@@ -116,7 +120,7 @@ extern "C"
 
 	struct paper_widget_button
 	{
-		struct paper_widget_overlay base;
+		struct paper_widget base;
 		struct paper_brush* current_brush;
 		struct paper_brush* normal_brush;
 		struct paper_brush* hot_brush;
@@ -192,17 +196,18 @@ extern "C"
 	/*
 	* overlay 的left top right bottom属于位偏移,不是正常矩形算法
 	*/
-	PAPER_API struct paper_widget_overlay* paper_overlay_create(struct paper_widget_init_struct* init);
+	PAPER_API struct paper_overlay* paper_overlay_create(struct paper_widget_init_struct* init);
 	//rcpaint 可绘制区域
-	PAPER_API void paper_overlay_paint(struct paper_widget_overlay* overlay, struct paper_render* render, const struct paper_rect* rcpaint);
-	PAPER_API void paper_overlay_free(struct paper_widget_overlay* overlay);
-	PAPER_API void paper_overlay_add_slot(struct paper_widget_overlay* overlay, struct paper_widget_overlay_slot* slot);
-	PAPER_API struct paper_widget* paper_widget_overlay_pt_in_region(struct paper_widget_overlay* overlay, const struct paper_rect* rcpaint, struct paper_point* pt);		//由于有子控件，所以必须实现鼠标点判断函数
+	PAPER_API void paper_overlay_paint(struct paper_overlay* overlay, struct paper_render* render, const struct paper_rect* rcpaint);
+	PAPER_API void paper_overlay_free(struct paper_overlay* overlay);
+	PAPER_API void paper_overlay_add_slot(struct paper_overlay* overlay, struct paper_overlay_slot* slot);
+	PAPER_API struct paper_widget* paper_overlay_pt_in_region(struct paper_overlay* overlay, const struct paper_rect* rcpaint, struct paper_point* pt);		//由于有子控件，所以必须实现鼠标点判断函数
 
 	/*overlay slot实现*/
-	PAPER_API struct paper_widget_overlay_slot* paper_widget_overlay_slot_create();
-	PAPER_API void paper_widget_overlay_slot_paint(struct paper_widget_overlay_slot* slot, struct paper_render* render, const struct paper_rect* rcpaint);
-	PAPER_API void paper_widget_overlay_slot_free(struct paper_widget_overlay_slot* slot);
+	PAPER_API struct paper_overlay_slot* paper_overlay_slot_create();
+	PAPER_API void paper_overlay_slot_paint(struct paper_overlay_slot* slot, struct paper_render* render, const struct paper_rect* rcpaint);
+	PAPER_API void paper_overlay_slot_free(struct paper_overlay_slot* slot);
+	PAPER_API struct paper_widget* paper_overlay_slot_pt_in_region(struct paper_overlay_slot* overlay, const struct paper_rect* rcpaint, struct paper_point* pt);		//由于有子控件，所以必须实现鼠标点判断函数
 
 	//渲染队列
 	PAPER_API void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue, struct paper_render* render);

@@ -65,6 +65,10 @@ extern "C"
 
 	PAPER_API void paper_window_add_widget(struct paper_window* window, struct paper_widget* widget);
 
+	PAPER_API void paper_window_set_root_widget(struct paper_window* window, struct paper_widget* widget);
+
+	PAPER_API struct paper_widget* paper_window_get_root_widget(struct paper_window* window);
+
 	PAPER_API void paer_window_set_cursor(struct paper_window* window, TCHAR* source);
 
 	PAPER_API void paer_window_set_icon(struct paper_window* window, uint32 sourceid);

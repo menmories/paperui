@@ -347,12 +347,12 @@ void paper_window_show_minimized(struct paper_window* window)
 
 int32 paper_window_is_maximized(struct paper_window* window)
 {
-	return IsIconic((HWND)window->winid);
+	return IsZoomed((HWND)window->winid);
 }
 
 int32 paper_window_is_minimized(struct paper_window* window)
 {
-	return IsZoomed((HWND)window->winid);
+	return IsIconic((HWND)window->winid);
 }
 
 uint_ptr paper_window_default_handle(struct paper_event* event)
@@ -369,6 +369,16 @@ struct paper_render* paper_window_get_render(struct paper_window* window)
 void paper_window_add_widget(struct paper_window* window, struct paper_widget* widget)
 {
 	paper_widget_queue_add(window->widget_queue, widget);
+}
+
+void paper_window_set_root_widget(struct paper_window* window, struct paper_widget* widget)
+{
+	window->widget_queue->first_widget = widget;
+}
+
+struct paper_widget* paper_window_get_root_widget(struct paper_window* window)
+{
+	return window->widget_queue->first_widget;
 }
 
 void paer_window_set_cursor(struct paper_window* window, TCHAR* source)
