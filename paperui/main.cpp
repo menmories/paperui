@@ -193,13 +193,11 @@ void initui(struct paper_window* window)
     //paper_window_add_widget(window, (struct paper_widget*)image_widget);
 
     paper_overlay* overlay = paper_overlay_create(nullptr);
-    overlay->halign = paper_halign_fill;
-    overlay->valign = paper_valign_fill;
     paper_window_set_root_widget(window, (struct paper_widget*)overlay);
 
     struct paper_overlay_slot* slot_img = paper_overlay_slot_create();
-    slot_img->halign = paper_halign_fill;
-    slot_img->valign = paper_valign_fill;
+    slot_img->halign = paper_halign_right;
+    slot_img->valign = paper_valign_bottom;
     slot_img->widget = (struct paper_widget*)image_widget;
     paper_overlay_add_slot(overlay, slot_img);
 

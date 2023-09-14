@@ -102,8 +102,6 @@ extern "C"
 	struct paper_overlay
 	{
 		struct paper_widget base;
-		enum paper_valign_type valign;	    //垂直对齐
-		enum paper_halign_type halign;	    //水平对齐
 		struct paper_overlay_slot* slot_begin;			//slots vector
 		struct paper_overlay_slot* slot_end;
 		//struct paper_widget* child;			//slot child
@@ -201,7 +199,9 @@ extern "C"
 	PAPER_API void paper_overlay_paint(struct paper_overlay* overlay, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_overlay_free(struct paper_overlay* overlay);
 	PAPER_API void paper_overlay_add_slot(struct paper_overlay* overlay, struct paper_overlay_slot* slot);
+	PAPER_API void paper_overlay_on_resize(struct paper_overlay* widget, int32 width, int32 height);
 	PAPER_API struct paper_widget* paper_overlay_pt_in_region(struct paper_overlay* overlay, const struct paper_rect* rcpaint, struct paper_point* pt);		//由于有子控件，所以必须实现鼠标点判断函数
+
 
 	/*overlay slot实现*/
 	PAPER_API struct paper_overlay_slot* paper_overlay_slot_create();

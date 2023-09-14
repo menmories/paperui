@@ -328,30 +328,23 @@ struct paper_overlay* paper_overlay_create(struct paper_widget_init_struct* init
 	struct paper_widget* base = (struct paper_widget*)overlay;
 	paper_widget_init((struct paper_widget*)overlay, init);
 	base->paint = (paper_widget_paint_cb)paper_overlay_paint;
-	overlay->halign = paper_halign_left;
-	overlay->valign = paper_valign_top;
+	base->on_resize = (paper_event_resize_cb)paper_overlay_on_resize;
+	base->listen_events = PAPER_LISTEN_EVENT_RESIZE;
 	return overlay;
 }
 
 void paper_overlay_paint(struct paper_overlay* overlay, struct paper_render* render, const struct paper_rect* rcpaint)
 {
 	struct paper_render* comp_render = NULL;
-	struct paper_rect rcLastPaint = { rcpaint->left, rcpaint->top };
-	if (overlay->halign == paper_halign_fill)
-	{
-		rcLastPaint.right = rcpaint->right - rcpaint->left;
-	}
-	if (overlay->valign == paper_valign_fill)
-	{
-		rcLastPaint.bottom = rcpaint->bottom - rcpaint->top;
-	}
-	comp_render = paper_render_create_compatible(render, rcLastPaint.right, rcLastPaint.bottom);
+	int32 width = rcpaint->right - rcpaint->left;
+	int32 height = rcpaint->bottom - rcpaint->top;
+	comp_render = paper_render_create_compatible(render, width, height);
 	paper_render_begin_draw(comp_render);
 	//在此处绘制overlay及其子控件...
 	//uint32 count = paper_vector_get_count(overlay->slots);
 	//struct paper_widget* base = (struct paper_widget*)overlay;
 	struct paper_widget* slot = (struct paper_widget*)overlay->slot_begin;
-	struct paper_rect rc_child = { 0, 0, rcpaint->right, rcpaint->bottom };
+	struct paper_rect rc_child = { 0, 0, width, height };
 	while (slot)
 	{
 		slot->paint(slot, comp_render, &rc_child);
@@ -360,7 +353,7 @@ void paper_overlay_paint(struct paper_overlay* overlay, struct paper_render* ren
 	/*end draw*/
 	paper_render_end_draw(comp_render);
 	struct paper_image* image = paper_image_get_from_render(comp_render);
-	paper_render_draw_image(render, image, rcLastPaint.left, rcLastPaint.top, rcLastPaint.right, rcLastPaint.bottom);
+	paper_render_draw_image(render, image, rcpaint->left, rcpaint->top, width, height);
 	paper_render_free(comp_render);
 	paper_image_free(image);
 }
@@ -393,11 +386,15 @@ void paper_overlay_add_slot(struct paper_overlay* overlay, struct paper_overlay_
 	struct paper_widget* overlay_base = (struct paper_widget*)overlay;
 	struct paper_widget* slot_base = (struct paper_widget*)slot;
 	struct paper_widget* slot_end_base = (struct paper_widget*)overlay->slot_end;
-
 	slot_end_base->next = slot_base;
 	slot_base->prev = slot_end_base;
 	slot_end_base = slot_base;
 	slot_end_base->next = NULL;
+}
+
+void paper_overlay_on_resize(struct paper_overlay* widget, int32 width, int32 height)
+{
+
 }
 
 struct paper_widget* paper_overlay_pt_in_region(struct paper_overlay* overlay, const struct paper_rect* rcpaint, struct paper_point* pt)
@@ -448,7 +445,6 @@ struct paper_overlay_slot* paper_overlay_slot_create()
 	paper_widget_init((struct paper_widget*)slot, NULL);
 	base->pt_in_region = (paper_widget_pt_in_region_cb)paper_overlay_slot_pt_in_region;
 	base->paint = (paper_widget_paint_cb)paper_overlay_slot_paint;
-	
 	slot->halign = paper_halign_left;
 	slot->valign = paper_valign_top;
 	return slot;
@@ -459,22 +455,50 @@ void paper_overlay_slot_paint(struct paper_overlay_slot* slot, struct paper_rend
 	assert(slot);
 	assert(slot->widget);
 	assert(slot->widget->paint);
-	if (slot->widget)
+	struct paper_rect real_rect = { 0 };		//获取真实的坐标区域
+	//real_rect.left = rcpaint->left;
+	//real_rect.top = rcpaint->top;
+	memcpy(&real_rect, &slot->widget->rect, sizeof(struct paper_rect));
+	if (slot->halign == paper_halign_fill)
 	{
-		struct paper_rect real_rect;		//获取真实的坐标区域
 		real_rect.left = rcpaint->left;
-		real_rect.top = rcpaint->top;
-		if (slot->halign == paper_halign_fill)
-		{
-			real_rect.right = rcpaint->right;
-		}
-		if (slot->valign == paper_valign_fill)
-		{
-			real_rect.bottom = rcpaint->bottom;
-		}
-		memcpy(&slot->widget->rect, &real_rect, sizeof(struct paper_rect));
-		slot->widget->paint(slot->widget, render, &real_rect);
+		real_rect.right = rcpaint->right;
 	}
+	else if (slot->halign == paper_halign_left)
+	{
+		real_rect.left = rcpaint->left;
+		real_rect.right = real_rect.left + paper_rect_get_width(&slot->widget->rect);
+	}
+	else if (slot->halign == paper_halign_center)
+	{
+		paper_rect_hcenter_rect(&real_rect, rcpaint);
+	}
+	else if (slot->halign == paper_halign_right)
+	{
+		real_rect.right = rcpaint->right;
+		real_rect.left = real_rect.right - paper_rect_get_width(&slot->widget->rect);
+	}
+	if (slot->valign == paper_valign_fill)
+	{
+		real_rect.top = rcpaint->top;
+		real_rect.bottom = rcpaint->bottom;
+	}
+	else if(slot->valign == paper_valign_top)
+	{
+		real_rect.top = rcpaint->top;
+		real_rect.bottom = real_rect.top + paper_rect_get_height(&slot->widget->rect);
+	}
+	else if (slot->valign == paper_valign_center)
+	{
+		paper_rect_vcenter_rect(&real_rect, rcpaint);
+	}
+	else if (slot->valign == paper_valign_bottom)
+	{
+		real_rect.bottom = rcpaint->bottom;
+		real_rect.top = real_rect.bottom - paper_rect_get_height(&slot->widget->rect);
+	}
+	memcpy(&slot->widget->rect, &real_rect, sizeof(struct paper_rect));
+	slot->widget->paint(slot->widget, render, &real_rect);
 }
 
 void paper_overlay_slot_free(struct paper_overlay_slot* slot)

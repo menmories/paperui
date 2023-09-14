@@ -44,6 +44,12 @@ extern "C"
 
 	PAPER_API void paper_rect_set_pos(struct paper_rect* rect, int32 x, int32 y);
 
+	PAPER_API void paper_rect_center_rect(struct paper_rect* rect, const struct paper_rect* src);
+
+	PAPER_API void paper_rect_hcenter_rect(struct paper_rect* rect, const struct paper_rect* src);
+
+	PAPER_API void paper_rect_vcenter_rect(struct paper_rect* rect, const struct paper_rect* src);
+
 	/*
 	* @function:判断一个2D坐标点是否则矩形区域范围内
 	* @return 
