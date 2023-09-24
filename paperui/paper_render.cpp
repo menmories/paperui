@@ -248,6 +248,9 @@ void paper_render_draw_rectangle(struct paper_render* render, const struct paper
 void paper_render_fill_rectangle(struct paper_render* render, const struct paper_rect* rect, struct paper_brush* brush)
 {
 	//D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)(rect->right - rect->left), (float)(rect->bottom - rect->top) };
+	assert(render);
+	assert(brush);
+	assert(rect);
 	D2D1_RECT_F rc = { (float)rect->left, (float)rect->top, (float)rect->right, (float)rect->bottom };
 	render->renderTarget->FillRectangle(rc, brush->brush);
 }
@@ -531,14 +534,14 @@ void paper_brush_free(struct paper_brush* brush)
 	paper_memorypool_dealloc(brush_pool, brush);
 }
 
-struct paper_font* paper_font_create(const wchar_t* family, float size, float weight, const wchar_t* localname /*= L"zh-cn"*/)
+struct paper_font* paper_font_create(const wchar_t* family, float size, const wchar_t* localname /*= L"zh-cn"*/)
 {
 	struct paper_font* font = nullptr;
 	IDWriteTextFormat* textFormat = nullptr;
 	DWriteFactory->CreateTextFormat(
 		family,
 		nullptr,
-		DWRITE_FONT_WEIGHT_REGULAR,
+		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
 		size,

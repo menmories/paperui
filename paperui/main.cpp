@@ -192,14 +192,28 @@ void initui(struct paper_window* window)
 	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, 380, 560);
     //paper_window_add_widget(window, (struct paper_widget*)image_widget);
 
-    paper_overlay* overlay = paper_overlay_create(nullptr);
+    struct paper_overlay* overlay = paper_overlay_create(nullptr);
     paper_window_set_root_widget(window, (struct paper_widget*)overlay);
 
     struct paper_overlay_slot* slot_img = paper_overlay_slot_create();
-    slot_img->halign = paper_halign_right;
-    slot_img->valign = paper_valign_bottom;
+    slot_img->halign = paper_halign_center;
+    slot_img->valign = paper_valign_center;
     slot_img->widget = (struct paper_widget*)image_widget;
     paper_overlay_add_slot(overlay, slot_img);
+
+	std::wstring button_str = L"我是居中按钮";
+    struct paper_color text_color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	struct paper_widget_text* text_widget = paper_widget_text_create(nullptr, &text_color, button_str.c_str(), button_str.length());
+    paper_widget_set_size((struct paper_widget*)text_widget, 100, 40);
+    paper_widget_set_pos((struct paper_widget*)text_widget, 0, 0);
+	struct paper_overlay_slot* slot_text = paper_overlay_slot_create();
+	slot_text->halign = paper_halign_center;
+	slot_text->valign = paper_valign_center;
+	slot_text->widget = (struct paper_widget*)text_widget;
+	paper_overlay_add_slot(overlay, slot_text);
+
+
+    //struct paper_widget_button* button_left = paper_widget_button_create(nullptr)
 
     /*for (int32 i = 0; i < 20; i++)
     {

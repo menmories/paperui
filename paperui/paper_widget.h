@@ -14,7 +14,7 @@ extern "C"
 	struct paper_widget_image;
 	struct paper_widget_text;
 	struct paper_widget_overlay;
-	struct paper_widget_button;
+	struct paper_button;
 	struct paper_widget_sizebox;
 	struct paper_widget_text_editor;
 
@@ -85,13 +85,23 @@ extern "C"
 		struct paper_widget base;
 		struct paper_image* image;
 	};
+
+
+	enum paper_text_align
+	{
+		paper_text_align_left,
+		paper_text_align_right,
+		paper_text_align_center,
+	};
+
 	struct paper_widget_text
 	{
 		struct paper_widget base;
+		enum paper_text_align text_align;
 		wchar_t* text;
 		uint32 text_len;
 		struct paper_font* text_font;
-		struct paper_brush* text_brush;
+		struct paper_color text_color;
 	};
 
 	struct paper_widget_sizebox
@@ -116,13 +126,14 @@ extern "C"
 		struct paper_widget* widget;
 	};
 
-	struct paper_widget_button
+	struct paper_button
 	{
 		struct paper_widget base;
 		struct paper_brush* current_brush;
 		struct paper_brush* normal_brush;
 		struct paper_brush* hot_brush;
 		struct paper_brush* pushed_brush;
+		uint32 mouse_button;
 		struct paper_widget_text* text_widget;
 	};
 	
@@ -155,7 +166,7 @@ extern "C"
 	PAPER_API void paper_widget_get_rect(struct paper_widget* widget, struct paper_rect* rect);
 	PAPER_API void paper_widget_map_global_point(struct paper_widget* widget, struct paper_point* global_pt);
 	PAPER_API struct paper_widget* paper_widget_pt_in_region(struct paper_widget* widget, const struct paper_rect* rcpaint, struct paper_point* pt);
-
+	
 	//当需要处理鼠标进入控件范围消息时使用此函数
 	PAPER_API void paper_widget_should_handle_enter(struct paper_widget* widget);
 	//当需要处理鼠标离开控件范围消息时使用此函数
@@ -180,16 +191,20 @@ extern "C"
 	PAPER_API void paper_widget_image_paint(struct paper_widget_image* widget, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_widget_image_free(struct paper_widget_image* widget);
 
-	PAPER_API struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
+	PAPER_API struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len);
 	PAPER_API void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_widget_text_free(struct paper_widget_text* text);
 	/*button控件实现*/
-	PAPER_API struct paper_widget_button* paper_widget_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
-	PAPER_API void paper_widget_button_paint(struct paper_widget_button* button, struct paper_render* render, const struct paper_rect* rcpaint);
-	PAPER_API void paper_widget_button_free(struct paper_widget_button* button);
-	PAPER_API void paper_widget_button_set_normal_brush(struct paper_widget_button* button, struct paper_brush* brush);
-	PAPER_API void paper_widget_button_set_hot_brush(struct paper_widget_button* button, struct paper_brush* brush);
-	PAPER_API void paper_widget_button_set_pushed_brush(struct paper_widget_button* button, struct paper_brush* brush);
+	PAPER_API struct paper_button* paper_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
+	PAPER_API void paper_button_paint(struct paper_button* button, struct paper_render* render, const struct paper_rect* rcpaint);
+	PAPER_API void paper_button_free(struct paper_button* button);
+	PAPER_API void paper_button_on_mouseenter(struct paper_button* button);
+	PAPER_API void paper_button_on_mouseleave(struct paper_button* button);
+	PAPER_API void paper_button_on_mousebutton(struct paper_button* button, uint32 mouseid, int32 x, int32 y, int8 state);
+
+	PAPER_API void paper_button_set_normal_brush(struct paper_button* button, struct paper_brush* brush);
+	PAPER_API void paper_button_set_hot_brush(struct paper_button* button, struct paper_brush* brush);
+	PAPER_API void paper_button_set_pushed_brush(struct paper_button* button, struct paper_brush* brush);
 	/*overlay实现*/
 	/*
 	* overlay 的left top right bottom属于位偏移,不是正常矩形算法

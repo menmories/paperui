@@ -228,7 +228,7 @@ void paper_widget_image_free(struct paper_widget_image* widget)
 	tmpWidget->free_widget(tmpWidget);
 }
 
-struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)
+struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len)
 {
 	struct paper_widget_text* text_widget = (struct paper_widget_text*)malloc(sizeof(struct paper_widget_text));
 	if (!text_widget)
@@ -236,50 +236,60 @@ struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_stru
 		return NULL;
 	}
 	assert(text);
-	text_widget->text_font = paper_font_create(L"ºÚÌå", 14.0f, 400, L"zh-cn");
+	memset(text_widget, 0, sizeof(struct paper_widget_text));
+	text_widget->text_font = paper_font_create(L"Î¢ÈíÑÅºÚ", 16.0f, L"zh-cn");
 	text_widget->text = (wchar_t*)malloc(sizeof(wchar_t) * len + 2);
 	text_widget->text_len = len;
-	struct paper_color color = { 0.1f, 0.1f, 0.1f, 1.0f };
-	text_widget->text_brush = paper_brush_create_solid(render, &color);
+	memcpy(&text_widget->text_color, textcolor, sizeof(struct paper_color));
+	text_widget->text_align = paper_text_align_center;
 	if (text_widget->text)
 	{
 		wcscpy(text_widget->text, text);
 	}
+
+	struct paper_widget* base = (struct paper_widget*)text_widget;
+	base->paint = (paper_widget_paint_cb)paper_widget_text_paint;
 	return text_widget;
 }
 
 void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint)
 {
-	paper_render_draw_text(render, text->text, text->text_len, rcpaint, text->text_font, text->text_brush);
+	//struct paper_rect rc = { 10, 10, 210, 42 };
+	struct paper_brush* text_brush = paper_brush_create_solid(render, &text->text_color);
+	paper_render_draw_text(render, text->text, text->text_len, rcpaint, text->text_font, text_brush);
+	paper_brush_free(text_brush);
 }
 
 void paper_widget_text_free(struct paper_widget_text* text)
 {
 	free(text->text);
 	paper_font_free(text->text_font);
-	paper_brush_free(text->text_brush);
 	free(text);
 }
 
-struct paper_widget_button* paper_widget_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)
+struct paper_button* paper_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)
 {
-	struct paper_widget_button* button = (struct paper_widget_button*)malloc(sizeof(struct paper_widget_button));
+	struct paper_button* button = (struct paper_button*)malloc(sizeof(struct paper_button));
 	if (!button)
 	{
 		return NULL;
 	}
-	memset(button, 0, sizeof(struct paper_widget_button));
+	memset(button, 0, sizeof(struct paper_button));
 	paper_widget_init((struct paper_widget*)button, init);
 	struct paper_widget* widget = (struct paper_widget*)button;
 	paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | 
 		PAPER_LISTEN_EVENT_MOUSEENTER | 
 		PAPER_LISTEN_EVENT_MOUSELEAVE);
-	widget->paint = (paper_widget_paint_cb)paper_widget_button_paint;
+	widget->paint = (paper_widget_paint_cb)paper_button_paint;
+	widget->on_mouse_enter = (paper_event_mouse_enter_cb)paper_button_on_mouseenter;
+	widget->on_mouse_leave = (paper_event_mouse_leave_cb)paper_button_on_mouseleave;
+	widget->on_mousebutton = (paper_event_mousebutton_cb)paper_button_on_mousebutton;
+
 	button->current_brush = button->normal_brush;
 	return button;
 }
 
-void paper_widget_button_paint(struct paper_widget_button* button, struct paper_render* render, const struct paper_rect* rcpaint)
+void paper_button_paint(struct paper_button* button, struct paper_render* render, const struct paper_rect* rcpaint)
 {
 	struct paper_render* comp_render = paper_render_create_compatible(render, paper_rect_get_width(rcpaint), paper_rect_get_height(rcpaint));
 	paper_render_begin_draw(comp_render);
@@ -297,22 +307,44 @@ void paper_widget_button_paint(struct paper_widget_button* button, struct paper_
 	paper_image_free(image);
 }
 
-void paper_widget_button_free(struct paper_widget_button* button)
+void paper_button_free(struct paper_button* button)
 {
 	free(button);
 }
 
-void paper_widget_button_set_normal_brush(struct paper_widget_button* button, struct paper_brush* brush)
+void paper_button_on_mouseenter(struct paper_button* button)
+{
+	if (button->mouse_button == VK_LBUTTON)
+	{
+		button->current_brush = button->hot_brush;
+	}
+	else
+	{
+		button->current_brush = button->pushed_brush;
+	}
+}
+
+void paper_button_on_mouseleave(struct paper_button* button)
+{
+	button->current_brush = button->hot_brush;
+}
+
+void paper_button_on_mousebutton(struct paper_button* button, uint32 mouseid, int32 x, int32 y, int8 state)
+{
+	button->mouse_button = mouseid;
+}
+
+void paper_button_set_normal_brush(struct paper_button* button, struct paper_brush* brush)
 {
 	button->normal_brush = brush;
 }
 
-void paper_widget_button_set_hot_brush(struct paper_widget_button* button, struct paper_brush* brush)
+void paper_button_set_hot_brush(struct paper_button* button, struct paper_brush* brush)
 {
 	button->hot_brush = brush;
 }
 
-void paper_widget_button_set_pushed_brush(struct paper_widget_button* button, struct paper_brush* brush)
+void paper_button_set_pushed_brush(struct paper_button* button, struct paper_brush* brush)
 {
 	button->pushed_brush = brush;
 }
@@ -381,6 +413,7 @@ void paper_overlay_add_slot(struct paper_overlay* overlay, struct paper_overlay_
 	if (overlay->slot_end == NULL)
 	{
 		overlay->slot_end = slot;
+		((struct paper_widget*)(overlay->slot_begin))->next = (struct paper_widget*)overlay->slot_end;
 		return;
 	}
 	struct paper_widget* overlay_base = (struct paper_widget*)overlay;

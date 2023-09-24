@@ -142,7 +142,7 @@ extern "C"
 	PAPER_API void paper_brush_free(struct paper_brush* brush);
 
 	/*font*/
-	PAPER_API struct paper_font* paper_font_create(const wchar_t* family, float size, float weight, const wchar_t* localname/* = L"zh-cn"*/);
+	PAPER_API struct paper_font* paper_font_create(const wchar_t* family, float size, const wchar_t* localname/* = L"zh-cn"*/);
 
 	PAPER_API void paper_font_free(struct paper_font* font);
 #ifdef __cplusplus
