@@ -191,7 +191,7 @@ extern "C"
 	PAPER_API void paper_widget_image_paint(struct paper_widget_image* widget, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_widget_image_free(struct paper_widget_image* widget);
 
-	PAPER_API struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len);
+	PAPER_API struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct* init, struct paper_color* textcolor, struct paper_font* font, const wchar_t* text, uint32 len);
 	PAPER_API void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_widget_text_free(struct paper_widget_text* text);
 	/*button¿Ø¼şÊµÏÖ*/

@@ -66,7 +66,8 @@ extern "C"
 	/*
 	* 功能：开始绘图，必须要在绘制之前调用才能开始绘图，绘制结束后调用paper_render_end_draw以结束绘图
 	*/
-	PAPER_API void paper_render_begin_draw(struct paper_render* render);
+	PAPER_API void paper_render_begin_draw(struct paper_render* render, struct paper_color* clearcolor);
+	PAPER_API void paper_render_begin_draw2(struct paper_render* render);
 	/*当无需绘图过后，调用此函数结束绘图*/
 	PAPER_API void paper_render_end_draw(struct paper_render* render);
 	/*将绘制目标清理成一种颜色*/
@@ -163,7 +164,7 @@ extern "C"
 	* @param metrics 占用的矩阵
 	* @return 成功返回paper_render指针，失败返回NULL
 	*/
-	PAPER_API void paper_font_getmetrics(const struct paper_font* font, const wchar_t* str, uint32 len, struct paper_font_metrics* metrics);
+	PAPER_API void paper_font_get_metrics(const struct paper_font* font, const wchar_t* str, uint32 len, struct paper_font_metrics* metrics);
 
 	PAPER_API void paper_font_free(struct paper_font* font);
 #ifdef __cplusplus

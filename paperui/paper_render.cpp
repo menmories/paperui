@@ -68,6 +68,7 @@ typedef void (*FreeMemoryCb)(void* addr);
 
 static ID2D1Factory* Direct2DFactory = nullptr;
 static IDWriteFactory* DWriteFactory = nullptr;
+static IDWriteRenderingParams* RenderParams = nullptr;
 static paper_memorypool* render_pool = nullptr;
 static paper_memorypool* image_pool = nullptr;
 static paper_memorypool* font_pool = nullptr;
@@ -96,6 +97,8 @@ int paper_render_initenv(void)
 		SafeRelease(&Direct2DFactory);
 		return -1;
 	}
+	/*DWriteFactory->CreateCustomRenderingParams(100, 0.5f, 1.0f, DWRITE_PIXEL_GEOMETRY_RGB,
+		DWRITE_RENDERING_MODE_CLEARTYPE_GDI_NATURAL, &RenderParams);*/
 	render_pool = paper_memorypool_create(sizeof(struct paper_render));
 	image_pool = paper_memorypool_create(sizeof(struct paper_image));
 	font_pool = paper_memorypool_create(sizeof(struct paper_font));
@@ -125,6 +128,9 @@ struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height)
 	{
 		return nullptr;
 	}
+	//renderTarget->SetTextRenderingParams(RenderParams);
+	//renderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_DEFAULT);
+	//renderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	struct paper_render* render = (struct paper_render*)paper_memorypool_alloc(render_pool);
 	if (!render)		//menmory alloc exception.
 	{
@@ -159,7 +165,13 @@ void paper_render_valid(struct paper_render* render)
 	ValidateRect((HWND)render->winid, nullptr);
 }
 
-void paper_render_begin_draw(struct paper_render* render)
+void paper_render_begin_draw(struct paper_render* render, struct paper_color* clearcolor)
+{
+	render->renderTarget->BeginDraw();
+	render->renderTarget->Clear(D2D1::ColorF(clearcolor->r, clearcolor->g, clearcolor->b, clearcolor->a));		//开始绘制前一定要clear
+}
+
+void paper_render_begin_draw2(struct paper_render* render)
 {
 	render->renderTarget->BeginDraw();
 }
@@ -298,6 +310,9 @@ struct paper_render* paper_render_create_compatible(struct paper_render* render,
 		SafeRelease(&bitmapRenderTarget);
 		return nullptr;
 	}
+	//bitmapRenderTarget->SetTextRenderingParams(RenderParams);
+	//bitmapRenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_DEFAULT);
+	//bitmapRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	compatible_render->winid = render->winid;
 	compatible_render->renderTarget = bitmapRenderTarget;
 	return compatible_render;
@@ -317,6 +332,9 @@ PAPER_API struct paper_render* paper_render_create_compatible_extendsize(struct 
 		SafeRelease(&bitmapRenderTarget);
 		return nullptr;
 	}
+	//bitmapRenderTarget->SetTextRenderingParams(RenderParams);
+	//bitmapRenderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_DEFAULT);
+	//bitmapRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	compatible_render->winid = render->winid;
 	compatible_render->renderTarget = bitmapRenderTarget;
 	return compatible_render;
@@ -568,12 +586,16 @@ struct paper_font* paper_font_create(const wchar_t* family, float size, const wc
 	{
 		return nullptr;
 	}
+	textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+	textFormat->SetReadingDirection(DWRITE_READING_DIRECTION_LEFT_TO_RIGHT);
+	textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+	textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 	font = (struct paper_font*)paper_memorypool_alloc(font_pool);
 	font->textFormat = textFormat;
 	return font;
 }
 
-void paper_font_getmetrics(const struct paper_font* font, const wchar_t* str, uint32 len, struct paper_font_metrics* metrics)
+void paper_font_get_metrics(const struct paper_font* font, const wchar_t* str, uint32 len, struct paper_font_metrics* metrics)
 {
 	IDWriteTextLayout* pTextLayout = NULL;
 	HRESULT hr = DWriteFactory->CreateTextLayout(str, len, font->textFormat, 0.0f, 0.0f, &pTextLayout);
@@ -584,7 +606,7 @@ void paper_font_getmetrics(const struct paper_font* font, const wchar_t* str, ui
 		hr = pTextLayout->GetMetrics(&textMetrics);
 		D2D1_SIZE_F size = D2D1::SizeF((float)(ceil(textMetrics.widthIncludingTrailingWhitespace), (float)ceil(textMetrics.height)));
 		metrics->width = (uint32)size.width;
-		metrics->height = (uint32)size.height;
+		metrics->height = (uint32)textMetrics.width;
 	}
 	SafeRelease(&pTextLayout);
 }

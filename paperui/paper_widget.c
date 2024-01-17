@@ -224,14 +224,14 @@ void paper_widget_image_free(struct paper_widget_image* widget)
 	tmpWidget->free_widget(tmpWidget);
 }
 
-struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len)
+struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct* init, struct paper_color* textcolor, struct paper_font* font, const wchar_t* text, uint32 len)
 {
 	assert(text);
 	struct paper_widget_text* text_widget = (struct paper_widget_text*)malloc(sizeof(struct paper_widget_text));
 	if (text_widget)
 	{
 		memset(text_widget, 0, sizeof(struct paper_widget_text));
-		text_widget->text_font = paper_font_create(L"微软雅黑", 16.0f, L"zh-cn");
+		text_widget->text_font = font;
 		text_widget->text = (wchar_t*)malloc(sizeof(wchar_t) * len + 2);
 		text_widget->text_len = len;
 		memcpy(&text_widget->text_color, textcolor, sizeof(struct paper_color));
@@ -285,8 +285,9 @@ struct paper_button* paper_button_new(struct paper_widget_init_struct* init, str
 
 void paper_button_paint(struct paper_button* button, struct paper_render* render, const struct paper_rect* rcpaint)
 {
+	struct paper_color clearColor = { 1.0f, 1.0f, 1.0f };
 	struct paper_render* comp_render = paper_render_create_compatible(render, paper_rect_get_width(rcpaint), paper_rect_get_height(rcpaint));
-	paper_render_begin_draw(comp_render);
+	paper_render_begin_draw(comp_render, &clearColor);
 	//paint background
 	paper_render_fill_rectangle(render, rcpaint, button->current_brush);
 	
@@ -361,11 +362,12 @@ struct paper_overlay* paper_overlay_new(struct paper_widget_init_struct* init)
 
 void paper_overlay_paint(struct paper_overlay* overlay, struct paper_render* render, const struct paper_rect* rcpaint)
 {
+	struct paper_color clearColor = { 1.0f, 1.0f, 1.0f };
 	struct paper_render* comp_render = NULL;
 	int32 width = rcpaint->right - rcpaint->left;
 	int32 height = rcpaint->bottom - rcpaint->top;
 	comp_render = paper_render_create_compatible(render, width, height);
-	paper_render_begin_draw(comp_render);
+	paper_render_begin_draw(comp_render, &clearColor);
 	//在此处绘制overlay及其子控件...
 	//uint32 count = paper_vector_get_count(overlay->slots);
 	//struct paper_widget* base = (struct paper_widget*)overlay;
