@@ -30,8 +30,7 @@ using namespace Gdiplus;
 //窗口回调函数，在这里处理窗口消息
 uint_ptr __stdcall handle_my_event(struct paper_event* event);
 void initui(struct paper_window* window);
-ULONG_PTR token;
-Gdiplus::GdiplusStartupInput input;
+void init_control(struct paper_render* render);
 struct paper_window* window = nullptr;
 int32 window_width = 1200;
 int32 window_height = 700;
@@ -39,10 +38,10 @@ int main(int argc, char** argv)
 {
     paper_application_init();
     //paper_set_window_event_cb(handle_my_event);      //如果想要接手事件循环，那么接手此消息，必须要在窗口创建前调用
-    window = paper_window_create(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
+    window = paper_window_new(TEXT("纸片UI窗口"), 100, 100, window_width, window_height, nullptr);
     //初始化你的UI
     initui(window);
-    struct paper_color color = { 0.5f, 0.8f, 0.1f, 1.0f };
+    struct paper_color color = { 0.5f, 0.8f, 1.0f, 1.0f };
     paper_window_set_clearcolor(window, &color);
     paper_window_center_screen(window);
     paper_window_show(window);
@@ -65,8 +64,9 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
         struct paper_color color = {1.0f, 1.0f, 1.0f, 1.0f};
         paper_render_begin_draw(render);
         paper_render_clear(render, &color);     //窗口必须clear
-        struct paper_render* compatible_render = paper_render_create_compatible(render, paper_rect_get_width(&builder->image_rect), paper_rect_get_height(&builder->image_rect));
-
+        struct paper_render* compatible_render = paper_render_create_compatible(render, 
+            paper_rect_get_width(&builder->image_rect), 
+            paper_rect_get_height(&builder->image_rect));
         paper_render_begin_draw(compatible_render);
         //paper_brush_set_opacity(builder->image_brush, 0.5f);
         paper_render_fill_rectangle(render, &builder->image_rect, builder->image_brush);
@@ -119,7 +119,7 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
         }
         else
         {
-			struct paper_window* win = paper_window_create_from_native_handle(hWnd);
+			struct paper_window* win = paper_window_new_from_native_handle(hWnd);
 			paper_window_set_pos(win, builder->x, builder->y);
 			//paper_window_set_size(win, builder->width, builder->height);
             //paper_window_set_pos(win, 0, 0);
@@ -142,12 +142,16 @@ uint_ptr __stdcall handle_my_event(struct paper_event* event)
 void initui(struct paper_window* window)
 {
     struct paper_render* render = paper_window_get_render(window);
-    struct paper_widget* widget = paper_widget_create(nullptr);
-    widget->render = render;
+    init_control(render);
+    return;
+
+
+
+    struct paper_widget* widget = paper_widget_new(nullptr);
     struct paper_color color = {0.1f, 1.0f, 1.0f, 1.0f};
     struct paper_color color2 = { 0.0f, 0.5f, 1.0f, 1.0f };
-    /*widget->background1 = paper_brush_create_solid(render, &color);
-    widget->background2 = paper_brush_create_solid(render, &color2);
+    /*widget->background1 = paper_brush_new_solid(render, &color);
+    widget->background2 = paper_brush_new_solid(render, &color2);
     widget->background = widget->background1;*/
     /*
     paper_rect_set_pos(&widget->rect, 10, 10);
@@ -155,20 +159,20 @@ void initui(struct paper_window* window)
     paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
     paper_window_add_widget(window, widget);
 
-	widget = paper_widget_create(nullptr);
+	widget = paper_widget_new(nullptr);
 	widget->render = render;
-	widget->background1 = paper_brush_create_solid(render, &color);
-	widget->background2 = paper_brush_create_solid(render, &color2);
+	widget->background1 = paper_brush_new_solid(render, &color);
+	widget->background2 = paper_brush_new_solid(render, &color2);
 	widget->background = widget->background1;
 	paper_rect_set_pos(&widget->rect, 150, 10);
 	paper_rect_set_size(&widget->rect, 120, 50);
 	paper_widget_add_event(widget, PAPER_LISTEN_EVENT_LBUTTON | PAPER_LISTEN_EVENT_MOUSEENTER | PAPER_LISTEN_EVENT_MOUSELEAVE | PAPER_LISTEN_EVENT_RESIZE);
 	paper_window_add_widget(window, widget);
 
-	widget = paper_widget_create(nullptr);
+	widget = paper_widget_new(nullptr);
 	widget->render = render;
-	widget->background1 = paper_brush_create_solid(render, &color);
-	widget->background2 = paper_brush_create_solid(render, &color2);
+	widget->background1 = paper_brush_new_solid(render, &color);
+	widget->background2 = paper_brush_new_solid(render, &color2);
 	widget->background = widget->background1;
 	paper_rect_set_pos(&widget->rect, 130, 180);
 	paper_rect_set_size(&widget->rect, 120, 50);
@@ -186,16 +190,15 @@ void initui(struct paper_window* window)
     }
     std::string imagePath = strApplicationPath + "\\111158151_p0_master1200.jpg";
     struct paper_image* image = paper_image_load_from_file(render, imagePath.c_str());
-    struct paper_widget_image* image_widget = paper_widget_image_create(NULL, image);
-    paper_widget_set_render((struct paper_widget*)image_widget, render);
+    struct paper_widget_image* image_widget = paper_widget_image_new(NULL, image);
 	paper_rect_set_pos(&((struct paper_widget*)(image_widget))->rect, 100, 100);
 	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, 380, 560);
     //paper_window_add_widget(window, (struct paper_widget*)image_widget);
 
-    struct paper_overlay* overlay = paper_overlay_create(nullptr);
+    struct paper_overlay* overlay = paper_overlay_new(nullptr);
     paper_window_set_root_widget(window, (struct paper_widget*)overlay);
 
-    struct paper_overlay_slot* slot_img = paper_overlay_slot_create();
+    struct paper_overlay_slot* slot_img = paper_overlay_slot_new();
     slot_img->halign = paper_halign_center;
     slot_img->valign = paper_valign_center;
     slot_img->widget = (struct paper_widget*)image_widget;
@@ -203,26 +206,26 @@ void initui(struct paper_window* window)
 
 	std::wstring button_str = L"我是居中按钮";
     struct paper_color text_color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	struct paper_widget_text* text_widget = paper_widget_text_create(nullptr, &text_color, button_str.c_str(), button_str.length());
+	struct paper_widget_text* text_widget = paper_widget_text_new(nullptr, &text_color, button_str.c_str(), (uint32)button_str.length());
     paper_widget_set_size((struct paper_widget*)text_widget, 100, 40);
     paper_widget_set_pos((struct paper_widget*)text_widget, 0, 0);
-	struct paper_overlay_slot* slot_text = paper_overlay_slot_create();
+	struct paper_overlay_slot* slot_text = paper_overlay_slot_new();
 	slot_text->halign = paper_halign_center;
 	slot_text->valign = paper_valign_center;
 	slot_text->widget = (struct paper_widget*)text_widget;
 	paper_overlay_add_slot(overlay, slot_text);
 
 
-    //struct paper_widget_button* button_left = paper_widget_button_create(nullptr)
+    //struct paper_widget_button* button_left = paper_widget_button_new(nullptr)
 
     /*for (int32 i = 0; i < 20; i++)
     {
         for (int32 j = 0; j < 40; j++)
         {
-			widget = paper_widget_create(nullptr);
+			widget = paper_widget_new(nullptr);
 			widget->render = render;
-			widget->background1 = paper_brush_create_solid(render, &color);
-			widget->background2 = paper_brush_create_solid(render, &color2);
+			widget->background1 = paper_brush_new_solid(render, &color);
+			widget->background2 = paper_brush_new_solid(render, &color2);
 			widget->background = widget->background1;
 			paper_rect_set_pos(&widget->rect, i * 100, j * 40);
 			paper_rect_set_size(&widget->rect, 90, 30);
@@ -230,4 +233,49 @@ void initui(struct paper_window* window)
 			paper_window_add_widget(window, widget);
         }
     }*/
+}
+
+void init_control(struct paper_render* render)
+{
+    paper_widget* widget = paper_widget_new(nullptr);
+	struct paper_overlay* overlay = paper_overlay_new(nullptr);
+	paper_window_set_root_widget(window, (struct paper_widget*)overlay);
+
+
+	int8* szApplicationPath = nullptr;
+	uint32 appPathLen = 0;
+	paper_application_get_path(&szApplicationPath, &appPathLen);        //获取当前应用程序路径
+	std::string strApplicationPath = szApplicationPath;
+	size_t pos = strApplicationPath.rfind('\\');
+	if (pos != std::string::npos)
+	{
+		strApplicationPath = strApplicationPath.substr(0, pos);     //去除掉最后一个\符号
+	}
+	//std::string imagePath = strApplicationPath + "\\111158151_p0_master1200.jpg";
+    std::string imagePath = strApplicationPath + "/92424854_p0.png";
+	struct paper_image* image = paper_image_load_from_file(render, imagePath.c_str());
+	struct paper_widget_image* image_widget = paper_widget_image_new(NULL, image);
+	//paper_rect_set_pos(&((struct paper_widget*)(image_widget))->rect, 1001, 100);
+    struct paper_size imagesize;
+    paper_image_get_size(image, &imagesize);
+	paper_rect_set_size(&((struct paper_widget*)(image_widget))->rect, imagesize.width / 4, imagesize.height / 4);
+
+
+    //创建overlay插槽
+	struct paper_overlay_slot* slot_img = paper_overlay_slot_new();
+	slot_img->halign = paper_halign_center;
+	slot_img->valign = paper_valign_center;
+	slot_img->widget = (struct paper_widget*)image_widget;
+	paper_overlay_add_slot(overlay, slot_img);
+
+	std::wstring button_str = L"我是居中按钮";
+	struct paper_color text_color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	struct paper_widget_text* text_widget = paper_widget_text_new(nullptr, &text_color, button_str.c_str(), (uint32)button_str.length());
+	paper_widget_set_size((struct paper_widget*)text_widget, 100, 40);
+	paper_widget_set_pos((struct paper_widget*)text_widget, 0, 0);
+	struct paper_overlay_slot* slot_text = paper_overlay_slot_new();
+	slot_text->halign = paper_halign_center;
+	slot_text->valign = paper_valign_center;
+	slot_text->widget = (struct paper_widget*)text_widget;
+	paper_overlay_add_slot(overlay, slot_text);
 }

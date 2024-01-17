@@ -8,25 +8,32 @@ extern "C"
 {
 #endif
 	struct paper_window;
+
+
+
 #define PAPER_CURSOR_ARROW IDC_ARROW
 #define PAPER_CURSOR_HAND  IDC_HAND
 
+#define PAPER_WINDOWFLAG_OVERLAPPED 0x01
+#define PAPER_WINDOW_FRAMELESS 0x02
 	//设置消息循环为默认消息循环
 	PAPER_API void paper_window_set_default_eventcb();
 
-	PAPER_API struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
+	PAPER_API struct paper_window* paper_window_new(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
-	PAPER_API struct paper_window* paper_window_create2(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height);
+	PAPER_API struct paper_window* paper_window_new2(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height);
 
-	PAPER_API struct paper_window* paper_window_create3(int32 x, int32 y, uint32 width, uint32 height);
+	PAPER_API struct paper_window* paper_window_new3(int32 x, int32 y, uint32 width, uint32 height);
 
-	PAPER_API struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
+	PAPER_API struct paper_window* paper_window_new_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent);
 
 	/*从本地窗口HWND获取一个paper_window句柄*/
-	PAPER_API struct paper_window* paper_window_create_from_native_handle(void* handle);
-	/*释放从paper_window_create_from_native_handle获取的句柄*/
+	PAPER_API struct paper_window* paper_window_new_from_native_handle(void* handle);
+	/*释放从paper_window_new_from_native_handle获取的句柄*/
 	PAPER_API void paper_window_free_form_native_handle(struct paper_window* window);
 	
+	PAPER_API void paper_window_set_flag(struct paper_window* window, uint32 flag);
+
 	/*销毁窗口*/
 	PAPER_API void paper_window_destroy(struct paper_window* window);
 

@@ -50,6 +50,8 @@ extern "C"
 
 	PAPER_API void paper_rect_vcenter_rect(struct paper_rect* rect, const struct paper_rect* src);
 
+	PAPER_API void paper_rect_get_center(const struct paper_rect* rect, struct paper_point* point);
+
 	/*
 	* @function:判断一个2D坐标点是否则矩形区域范围内
 	* @return 

@@ -432,6 +432,22 @@ struct paper_image* paper_image_load_from_memory(struct paper_render* render, vo
 	return image;
 }
 
+PAPER_API int32 paper_image_get_width(struct paper_image* image)
+{
+	return (int32)image->bitmap->GetSize().width;
+}
+
+PAPER_API int32 paper_image_get_height(struct paper_image* image)
+{
+	return (int32)image->bitmap->GetSize().height;
+}
+
+PAPER_API void paper_image_get_size(struct paper_image* image, struct paper_size* size)
+{
+	size->width = (int32)image->bitmap->GetSize().width;
+	size->height = (int32)image->bitmap->GetSize().height;
+}
+
 void paper_image_free(struct paper_image* image)
 {
 	SafeRelease(&image->bitmap);
@@ -555,6 +571,22 @@ struct paper_font* paper_font_create(const wchar_t* family, float size, const wc
 	font = (struct paper_font*)paper_memorypool_alloc(font_pool);
 	font->textFormat = textFormat;
 	return font;
+}
+
+void paper_font_getmetrics(const struct paper_font* font, const wchar_t* str, uint32 len, struct paper_font_metrics* metrics)
+{
+	IDWriteTextLayout* pTextLayout = NULL;
+	HRESULT hr = DWriteFactory->CreateTextLayout(str, len, font->textFormat, 0.0f, 0.0f, &pTextLayout);
+	if (SUCCEEDED(hr))
+	{
+		// 获取文本尺寸  
+		DWRITE_TEXT_METRICS textMetrics;
+		hr = pTextLayout->GetMetrics(&textMetrics);
+		D2D1_SIZE_F size = D2D1::SizeF((float)(ceil(textMetrics.widthIncludingTrailingWhitespace), (float)ceil(textMetrics.height)));
+		metrics->width = (uint32)size.width;
+		metrics->height = (uint32)size.height;
+	}
+	SafeRelease(&pTextLayout);
 }
 
 void paper_font_free(struct paper_font* font)

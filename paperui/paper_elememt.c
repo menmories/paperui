@@ -64,6 +64,15 @@ void paper_rect_vcenter_rect(struct paper_rect* rect, const struct paper_rect* s
 	rect->bottom = y + height;
 }
 
+void paper_rect_get_center(const struct paper_rect* rect, struct paper_point* point)
+{
+	int32 width = paper_rect_get_width(rect);
+	int32 height = paper_rect_get_height(rect);
+	point->x = (paper_rect_get_width(rect) - width) / 2;
+	point->y = (paper_rect_get_height(rect) - height) / 2;
+	
+}
+
 int8 paper_rect_pt_in(const struct paper_rect* rect, int32 x, int32 y)
 {
 	if (rect->left < x && rect->right >= x && rect->top < y && rect->bottom >= y)

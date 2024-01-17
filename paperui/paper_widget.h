@@ -10,7 +10,7 @@ extern "C"
 #include "paper_define.h"
 #include "paper_event.h"
 #include "paper_render.h"
-	struct paper_widget;
+	struct paper_widget;				//widget,all component base struct
 	struct paper_widget_image;
 	struct paper_widget_text;
 	struct paper_widget_overlay;
@@ -45,6 +45,8 @@ extern "C"
 	struct paper_overlay_slot;
 	struct paper_overlay;
 
+#define BASE_WIDGET(widget) ((struct paper_widget*)widget)
+
 	struct paper_widget
 	{
 		paper_widget_paint_cb			paint;				//绘图回调
@@ -60,7 +62,7 @@ extern "C"
 		struct paper_rect rect_global;	//global of window rect.
 		uint32 listen_events;			//监听的事件
 		uint32 events;
-		struct paper_render* render;
+		//struct paper_render* render;
 		struct paper_widget* parent;
 		struct paper_widget* prev;
 		struct paper_widget* next;
@@ -77,7 +79,7 @@ extern "C"
 		paper_widget_free_cb			free_widget;
 		struct paper_rect rect;
 		struct paper_widget* parent;
-		struct paper_render* render;
+		//struct paper_render* render;
 	};
 
 	struct paper_widget_image
@@ -154,15 +156,13 @@ extern "C"
 	
 
 	/*基础widget实现*/
-	PAPER_API struct paper_widget* paper_widget_create(struct paper_widget_init_struct* init);
+	PAPER_API struct paper_widget* paper_widget_new(struct paper_widget_init_struct* init);
 	PAPER_API void paper_widget_init(struct paper_widget* widget, struct paper_widget_init_struct* init);
 	PAPER_API void paper_widget_set_size(struct paper_widget* widget, uint32 width, uint32 height);
 	PAPER_API void paper_widget_set_pos(struct paper_widget* widget, int32 x, int32 y);
 	PAPER_API void paper_widget_paint(struct paper_widget* widget, struct paper_render* render, const struct paper_rect* rcpaint);			//widget 绘图函数
 	PAPER_API void paper_widget_free_components(struct paper_widget* widget);		//释放widget下的所有动态申请的组件
 	PAPER_API void paper_widget_free(struct paper_widget* widget);
-	PAPER_API struct paper_render* paper_widget_get_render(struct paper_widget* widget);
-	PAPER_API void paper_widget_set_render(struct paper_widget* widget, struct paper_render* render);
 	PAPER_API void paper_widget_get_rect(struct paper_widget* widget, struct paper_rect* rect);
 	PAPER_API void paper_widget_map_global_point(struct paper_widget* widget, struct paper_point* global_pt);
 	PAPER_API struct paper_widget* paper_widget_pt_in_region(struct paper_widget* widget, const struct paper_rect* rcpaint, struct paper_point* pt);
@@ -187,15 +187,15 @@ extern "C"
 	PAPER_API void paper_widget_on_mousebutton(struct paper_widget* widget, uint32 button, int32 x, int32 y, int8 state);
 
 	/*image控件实现*/
-	PAPER_API struct paper_widget_image* paper_widget_image_create(struct paper_widget_init_struct* init, struct paper_image* image);
+	PAPER_API struct paper_widget_image* paper_widget_image_new(struct paper_widget_init_struct* init, struct paper_image* image);
 	PAPER_API void paper_widget_image_paint(struct paper_widget_image* widget, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_widget_image_free(struct paper_widget_image* widget);
 
-	PAPER_API struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len);
+	PAPER_API struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len);
 	PAPER_API void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_widget_text_free(struct paper_widget_text* text);
 	/*button控件实现*/
-	PAPER_API struct paper_button* paper_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
+	PAPER_API struct paper_button* paper_button_new(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
 	PAPER_API void paper_button_paint(struct paper_button* button, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_button_free(struct paper_button* button);
 	PAPER_API void paper_button_on_mouseenter(struct paper_button* button);
@@ -209,7 +209,7 @@ extern "C"
 	/*
 	* overlay 的left top right bottom属于位偏移,不是正常矩形算法
 	*/
-	PAPER_API struct paper_overlay* paper_overlay_create(struct paper_widget_init_struct* init);
+	PAPER_API struct paper_overlay* paper_overlay_new(struct paper_widget_init_struct* init);
 	//rcpaint 可绘制区域
 	PAPER_API void paper_overlay_paint(struct paper_overlay* overlay, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_overlay_free(struct paper_overlay* overlay);
@@ -219,14 +219,14 @@ extern "C"
 
 
 	/*overlay slot实现*/
-	PAPER_API struct paper_overlay_slot* paper_overlay_slot_create();
+	PAPER_API struct paper_overlay_slot* paper_overlay_slot_new();
 	PAPER_API void paper_overlay_slot_paint(struct paper_overlay_slot* slot, struct paper_render* render, const struct paper_rect* rcpaint);
 	PAPER_API void paper_overlay_slot_free(struct paper_overlay_slot* slot);
 	PAPER_API struct paper_widget* paper_overlay_slot_pt_in_region(struct paper_overlay_slot* overlay, const struct paper_rect* rcpaint, struct paper_point* pt);		//由于有子控件，所以必须实现鼠标点判断函数
 
 	//渲染队列
 	PAPER_API void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue, struct paper_render* render);
-	PAPER_API struct paper_widget_queue* paper_widget_queue_create(uint32 width, uint32 height);
+	PAPER_API struct paper_widget_queue* paper_widget_queue_new(uint32 width, uint32 height);
 	PAPER_API void paper_widget_queue_add(struct paper_widget_queue* widget_queue, struct paper_widget* widget);
 	PAPER_API void paper_widget_queue_remove(struct paper_widget_queue* widget_queue, struct paper_widget* widget);
 	PAPER_API void paper_widget_queue_free(struct paper_widget_queue* widget_queue);

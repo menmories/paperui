@@ -137,7 +137,7 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 		uint32 width = rcClient.right - rcClient.left;
 		uint32 height = rcClient.bottom - rcClient.top;
 		window->render = paper_render_create(window->winid, width, height);
-		window->widget_queue = paper_widget_queue_create(width, height);
+		window->widget_queue = paper_widget_queue_new(width, height);
 		window_count++;		//窗口创建成功，窗口引用计数+1
 		return 0;
 	}
@@ -161,22 +161,22 @@ void paper_window_set_default_eventcb()
 	paper_set_window_event_cb(handle_windows_message);
 }
 
-struct paper_window* paper_window_create(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
+struct paper_window* paper_window_new(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
 {
-	return paper_window_create_native(szTitle, paper_wnd_proc, x, y, width, height, parent);
+	return paper_window_new_native(szTitle, paper_wnd_proc, x, y, width, height, parent);
 }
 
-struct paper_window* paper_window_create2(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height)
+struct paper_window* paper_window_new2(const wchar_t* szTitle, int32 x, int32 y, uint32 width, uint32 height)
 {
-	return paper_window_create_native(szTitle, paper_wnd_proc, x, y, width, height, NULL);
+	return paper_window_new_native(szTitle, paper_wnd_proc, x, y, width, height, NULL);
 }
 
-struct paper_window* paper_window_create3(int32 x, int32 y, uint32 width, uint32 height)
+struct paper_window* paper_window_new3(int32 x, int32 y, uint32 width, uint32 height)
 {
-	return paper_window_create_native(L"", paper_wnd_proc, x, y, width, height, NULL);
+	return paper_window_new_native(L"", paper_wnd_proc, x, y, width, height, NULL);
 }
 
-struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
+struct paper_window* paper_window_new_native(const wchar_t* szTitle, WNDPROC proc, int32 x, int32 y, uint32 width, uint32 height, struct paper_window* parent)
 {
 	WNDCLASS wc = { 0 };
 	wc.style = CS_VREDRAW | CS_HREDRAW | CS_CLASSDC;	// | CS_DBLCLKS;
@@ -235,7 +235,7 @@ struct paper_window* paper_window_create_native(const wchar_t* szTitle, WNDPROC 
 	return window;
 }
 
-struct paper_window* paper_window_create_from_native_handle(void* handle)
+struct paper_window* paper_window_new_from_native_handle(void* handle)
 {
 	struct paper_window* window = (struct paper_window*)malloc(sizeof(struct paper_window));
 	if (!window)
@@ -249,6 +249,11 @@ struct paper_window* paper_window_create_from_native_handle(void* handle)
 void paper_window_free_form_native_handle(struct paper_window* window)
 {
 	free(window);
+}
+
+void paper_window_set_flag(struct paper_window* window, uint32 flag)
+{
+	// SetWindowLongPtrA((HWND)window->winid, GWP_WINDOWSTYLE, )
 }
 
 void paper_window_destroy(struct paper_window* window)

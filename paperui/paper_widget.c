@@ -7,7 +7,12 @@
 #include "paper_vector.h"
 #include "paper_event.h"
 #include <stdio.h>
-struct paper_widget* paper_widget_create(struct paper_widget_init_struct* init)
+
+
+
+
+
+struct paper_widget* paper_widget_new(struct paper_widget_init_struct* init)
 {
 	struct paper_widget* widget = (struct paper_widget*)malloc(sizeof(struct paper_widget));
 	if (!widget)
@@ -49,7 +54,6 @@ void paper_widget_init(struct paper_widget* widget, struct paper_widget_init_str
 		widget->on_mousebutton = init->on_mousebutton;
 		memcpy(&widget->rect, &init->rect, sizeof(struct paper_rect));
 		widget->parent = init->parent;
-		widget->render = init->render;
 		widget->free_widget = init->free_widget;
 	}
 	else
@@ -100,16 +104,6 @@ void paper_widget_free(struct paper_widget* widget)
 {
 	paper_widget_free_components(widget);
 	free(widget);
-}
-
-struct paper_render* paper_widget_get_render(struct paper_widget* widget)
-{
-	return widget->render;
-}
-
-void paper_widget_set_render(struct paper_widget* widget, struct paper_render* render)
-{
-	widget->render = render;
 }
 
 void paper_widget_get_rect(struct paper_widget* widget, struct paper_rect* rect)
@@ -196,16 +190,18 @@ void paper_widget_on_mousebutton(struct paper_widget* widget, uint32 button, int
 	
 }
 
-struct paper_widget_image* paper_widget_image_create(struct paper_widget_init_struct* init, struct paper_image* image)
+struct paper_widget_image* paper_widget_image_new(struct paper_widget_init_struct* init, struct paper_image* image)
 {
 	struct paper_widget_image* image_widget = (struct paper_widget_image*)malloc(sizeof(struct paper_widget_image));
 	if (!image_widget)
 	{
 		return NULL;
 	}
-	paper_widget_init((struct paper_widget*)image_widget, init);
-	image_widget->base.listen_events = 0;		//不监听任何事件
-	image_widget->base.paint = (paper_widget_paint_cb)paper_widget_image_paint;
+	struct paper_widget* base = BASE_WIDGET(image_widget);
+	paper_widget_init(base, init);
+	base->listen_events = 0;		//不监听任何事件
+	base->paint = (paper_widget_paint_cb)paper_widget_image_paint;
+
 	image_widget->image = image;
 	return image_widget;
 }
@@ -228,27 +224,25 @@ void paper_widget_image_free(struct paper_widget_image* widget)
 	tmpWidget->free_widget(tmpWidget);
 }
 
-struct paper_widget_text* paper_widget_text_create(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len)
+struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct* init, struct paper_color* textcolor, const wchar_t* text, uint32 len)
 {
-	struct paper_widget_text* text_widget = (struct paper_widget_text*)malloc(sizeof(struct paper_widget_text));
-	if (!text_widget)
-	{
-		return NULL;
-	}
 	assert(text);
-	memset(text_widget, 0, sizeof(struct paper_widget_text));
-	text_widget->text_font = paper_font_create(L"微软雅黑", 16.0f, L"zh-cn");
-	text_widget->text = (wchar_t*)malloc(sizeof(wchar_t) * len + 2);
-	text_widget->text_len = len;
-	memcpy(&text_widget->text_color, textcolor, sizeof(struct paper_color));
-	text_widget->text_align = paper_text_align_center;
-	if (text_widget->text)
+	struct paper_widget_text* text_widget = (struct paper_widget_text*)malloc(sizeof(struct paper_widget_text));
+	if (text_widget)
 	{
-		wcscpy(text_widget->text, text);
+		memset(text_widget, 0, sizeof(struct paper_widget_text));
+		text_widget->text_font = paper_font_create(L"微软雅黑", 16.0f, L"zh-cn");
+		text_widget->text = (wchar_t*)malloc(sizeof(wchar_t) * len + 2);
+		text_widget->text_len = len;
+		memcpy(&text_widget->text_color, textcolor, sizeof(struct paper_color));
+		text_widget->text_align = paper_text_align_center;
+		if (text_widget->text)
+		{
+			wcscpy(text_widget->text, text);
+		}
+		struct paper_widget* base = BASE_WIDGET(text_widget);
+		base->paint = (paper_widget_paint_cb)paper_widget_text_paint;
 	}
-
-	struct paper_widget* base = (struct paper_widget*)text_widget;
-	base->paint = (paper_widget_paint_cb)paper_widget_text_paint;
 	return text_widget;
 }
 
@@ -267,7 +261,7 @@ void paper_widget_text_free(struct paper_widget_text* text)
 	free(text);
 }
 
-struct paper_button* paper_button_create(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)
+struct paper_button* paper_button_new(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)
 {
 	struct paper_button* button = (struct paper_button*)malloc(sizeof(struct paper_button));
 	if (!button)
@@ -349,7 +343,7 @@ void paper_button_set_pushed_brush(struct paper_button* button, struct paper_bru
 	button->pushed_brush = brush;
 }
 
-struct paper_overlay* paper_overlay_create(struct paper_widget_init_struct* init)
+struct paper_overlay* paper_overlay_new(struct paper_widget_init_struct* init)
 {
 	struct paper_overlay* overlay = (struct paper_overlay*)malloc(sizeof(struct paper_overlay));
 	if (!overlay)
@@ -466,7 +460,7 @@ struct paper_widget* paper_overlay_pt_in_region(struct paper_overlay* overlay, c
 	return NULL;		//0 == false
 }
 
-struct paper_overlay_slot* paper_overlay_slot_create()
+struct paper_overlay_slot* paper_overlay_slot_new()
 {
 	struct paper_overlay_slot* slot = (struct paper_overlay_slot*)malloc(sizeof(struct paper_overlay_slot));
 	if (!slot)
@@ -567,7 +561,7 @@ void paper_widget_queue_paint_all(struct paper_widget_queue* widget_queue, struc
 	}
 }
 
-struct paper_widget_queue* paper_widget_queue_create(uint32 width, uint32 height)
+struct paper_widget_queue* paper_widget_queue_new(uint32 width, uint32 height)
 {
 	struct paper_widget_queue* widget_queue = (struct paper_widget_queue*)malloc(sizeof(struct paper_widget_queue));
 	if (!widget_queue)

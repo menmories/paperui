@@ -125,6 +125,12 @@ extern "C"
 	/*从内存读取一张图片*/
 	PAPER_API struct paper_image* paper_image_load_from_memory(struct paper_render* render, void* data, uint32 len);
 
+	PAPER_API int32 paper_image_get_width(struct paper_image* image);
+
+	PAPER_API int32 paper_image_get_height(struct paper_image* image);
+
+	PAPER_API void paper_image_get_size(struct paper_image* image, struct paper_size* size);
+
 	PAPER_API void paper_image_free(struct paper_image* image);
 
 
@@ -142,7 +148,22 @@ extern "C"
 	PAPER_API void paper_brush_free(struct paper_brush* brush);
 
 	/*font*/
+	struct paper_font_metrics
+	{
+		uint32 height;
+		uint32 width;
+	};
 	PAPER_API struct paper_font* paper_font_create(const wchar_t* family, float size, const wchar_t* localname/* = L"zh-cn"*/);
+
+	/*
+	* @功能：获取一段文字会占用渲染区域的宽度和高度，单位为像素
+	* @param font 渲染时使用的字体
+	* @param str 渲染的字符串
+	* @param len 渲染的字符串的长度
+	* @param metrics 占用的矩阵
+	* @return 成功返回paper_render指针，失败返回NULL
+	*/
+	PAPER_API void paper_font_getmetrics(const struct paper_font* font, const wchar_t* str, uint32 len, struct paper_font_metrics* metrics);
 
 	PAPER_API void paper_font_free(struct paper_font* font);
 #ifdef __cplusplus
