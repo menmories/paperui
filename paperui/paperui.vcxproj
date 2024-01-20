@@ -153,6 +153,7 @@
     <ClCompile Include="paper_event.c" />
     <ClCompile Include="paper_memorypool.c" />
     <ClCompile Include="paper_render.cpp" />
+    <ClCompile Include="paper_thread.cpp" />
     <ClCompile Include="paper_vector.c" />
     <ClCompile Include="paper_widget.c" />
     <ClCompile Include="paper_window.c" />
@@ -166,6 +167,7 @@
     <ClInclude Include="paper_event.h" />
     <ClInclude Include="paper_memorypool.h" />
     <ClInclude Include="paper_render.h" />
+    <ClInclude Include="paper_thread.h" />
     <ClInclude Include="paper_vector.h" />
     <ClInclude Include="paper_widget.h" />
     <ClInclude Include="paper_window.h" />

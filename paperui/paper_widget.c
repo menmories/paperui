@@ -246,19 +246,28 @@ struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct*
 	return text_widget;
 }
 
-void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint)
+void paper_widget_text_paint(struct paper_widget_text* textwidget, struct paper_render* render, const struct paper_rect* rcpaint)
 {
 	//struct paper_rect rc = { 10, 10, 210, 42 };
-	struct paper_brush* text_brush = paper_brush_create_solid(render, &text->text_color);
-	paper_render_draw_text(render, text->text, text->text_len, rcpaint, text->text_font, text_brush);
+	struct paper_brush* text_brush = paper_brush_create_solid(render, &textwidget->text_color);
+	paper_render_draw_text(render, textwidget->text, textwidget->text_len, rcpaint, textwidget->text_font, text_brush);
 	paper_brush_free(text_brush);
 }
 
-void paper_widget_text_free(struct paper_widget_text* text)
+void paper_widget_text_set(struct paper_widget_text* textwidget, const wchar_t* text)
 {
-	free(text->text);
-	paper_font_free(text->text_font);
-	free(text);
+	uint32 len = (uint32)wcslen(text);
+	textwidget->text = realloc(textwidget->text, len + 2);
+	wmemcpy(textwidget->text, text, len);
+	textwidget->text[len] = L'\0';
+	textwidget->text_len = len;
+}
+
+void paper_widget_text_free(struct paper_widget_text* textwidget)
+{
+	free(textwidget->text);
+	paper_font_free(textwidget->text_font);
+	free(textwidget);
 }
 
 struct paper_button* paper_button_new(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)

@@ -192,8 +192,9 @@ extern "C"
 	PAPER_API void paper_widget_image_free(struct paper_widget_image* widget);
 
 	PAPER_API struct paper_widget_text* paper_widget_text_new(struct paper_widget_init_struct* init, struct paper_color* textcolor, struct paper_font* font, const wchar_t* text, uint32 len);
-	PAPER_API void paper_widget_text_paint(struct paper_widget_text* text, struct paper_render* render, const struct paper_rect* rcpaint);
-	PAPER_API void paper_widget_text_free(struct paper_widget_text* text);
+	PAPER_API void paper_widget_text_paint(struct paper_widget_text* textwidget, struct paper_render* render, const struct paper_rect* rcpaint);
+	PAPER_API void paper_widget_text_set(struct paper_widget_text* textwidget, const wchar_t* text);
+	PAPER_API void paper_widget_text_free(struct paper_widget_text* tetextwidgetxt);
 	/*button¿Ø¼þÊµÏÖ*/
 	PAPER_API struct paper_button* paper_button_new(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len);
 	PAPER_API void paper_button_paint(struct paper_button* button, struct paper_render* render, const struct paper_rect* rcpaint);

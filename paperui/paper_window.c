@@ -42,7 +42,7 @@ int_ptr CALLBACK handle_windows_message(struct paper_event* event)
 		GetClientRect(window->winid, &rcWindow);
 #endif
 		paper_render_begin_draw2(window->render);
-		//paper_render_clear(window->render, &window->clear_color);
+		paper_render_clear(window->render, &window->clear_color);
 		struct paper_render* topRender = paper_render_create_compatible_extendsize(window->render);
 		paper_render_begin_draw(topRender, &window->clear_color);
 		paper_widget_queue_paint_all(window->widget_queue, topRender);

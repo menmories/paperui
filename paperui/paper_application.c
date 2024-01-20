@@ -22,6 +22,7 @@ int32 paper_application_init()
 		return -1;
 	}
 	paper_window_set_default_eventcb();
+	paper_event_enable_main_looper();
 	return 0;
 }
 

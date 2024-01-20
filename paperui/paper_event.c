@@ -6,6 +6,16 @@
 #include "paper_window.h"
 #include <stdio.h>
 
+struct paper_looper
+{
+	DWORD dwThreadId;
+};
+
+#define WM_LOOPER (WM_USER + 100)
+
+
+static struct paper_looper* mainLooper = NULL;
+
 static handle_event_cb handle_window_event;
 int32 paper_event_run(struct paper_event* event)
 {
@@ -31,6 +41,13 @@ uint_ptr paper_event_handle(struct paper_event* event)
 }
 
 
+void paper_event_enable_main_looper()
+{
+	MSG msg = { 0 };
+	mainLooper = paper_looper_new();
+	PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+}
+
 int32 paper_event_dispatch()
 {
 	MSG msg = { 0 };
@@ -38,7 +55,14 @@ int32 paper_event_dispatch()
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);      //WM_QUIT
+		if (WM_LOOPER == msg.message)
+		{
+			LooperInvokeCb cb = (LooperInvokeCb)msg.wParam;
+			void* params = (void*)msg.lParam;
+			cb(params);
+		}
 	}
+	paper_looper_free(mainLooper);
 	return (int32) msg.wParam;
 }
 
@@ -96,5 +120,51 @@ LRESULT CALLBACK paper_wnd_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return handle_window_event(&event);
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+
+
+struct paper_looper* paper_looper_new()
+{
+	struct paper_looper* looper = (struct paper_looper*)malloc(sizeof(struct paper_looper));
+	if (looper)
+	{
+		looper->dwThreadId = GetCurrentThreadId();
+	}
+	return looper;
+}
+
+void paper_looper_free(struct paper_looper* looper)
+{
+	free(looper);
+}
+
+struct paper_looper* paper_get_main_looper()
+{
+	return mainLooper;
+}
+
+int32 paper_looper_invoke(struct paper_looper* looper, LooperInvokeCb cb, void* params)
+{
+	assert(cb && looper);
+	while (1)
+	{
+		DWORD dwRet = PostThreadMessage(looper->dwThreadId, WM_LOOPER, (WPARAM)cb, (LPARAM)params);
+		if (dwRet == TRUE)
+		{
+			return TRUE;
+		}
+		dwRet = GetLastError();
+		if (dwRet == ERROR_NOT_ENOUGH_QUOTA)
+		{
+			Sleep(50);
+			continue;	//达到消息限制
+		}
+		if (dwRet == ERROR_INVALID_THREAD_ID)
+		{
+			break;		//线程ID没有消息循环
+		}
+	}
+	return FALSE;
 }
 

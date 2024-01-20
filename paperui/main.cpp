@@ -19,11 +19,34 @@
 
 #include "paper_event.h"
 #include "paper_application.h"
+#include "paper_thread.h"
 
 //gdi+来绘制一张图片
 using namespace Gdiplus;
 
 #pragma comment(lib, "gdiplus.lib")
+
+std::wstring button_str = L"Consolas";
+struct paper_widget_text* text_widget = nullptr;
+void invokecb(void* param)
+{
+    wchar_t* str = (wchar_t*)param;
+    paper_widget_text_set(text_widget, str);
+    delete[] str;
+}
+uint32 _ThreadProc(void* params)
+{
+    paper_looper* looper = paper_get_main_looper();
+    int count = 0;
+    while (true)
+    {
+        paper_thread_sleep(1000);
+        wchar_t* str = new wchar_t[1024];
+        wsprintf(str, L"测试%d", count);
+        paper_looper_invoke(looper, invokecb, (void*)str);
+        count++;
+    }
+}
 
 
 
@@ -34,6 +57,8 @@ void init_control(struct paper_render* render);
 struct paper_window* window = nullptr;
 int32 window_width = 1200;
 int32 window_height = 700;
+paper_thread* mainThread;
+
 int main(int argc, char** argv)
 {
     paper_application_init();
@@ -45,6 +70,8 @@ int main(int argc, char** argv)
     paper_window_set_clearcolor(window, &color);
     paper_window_center_screen(window);
     paper_window_show(window);
+	mainThread = paper_thread_new();
+	paper_thread_start(mainThread, _ThreadProc, nullptr);
     return paper_application_run();
 }
 
@@ -284,10 +311,10 @@ void init_control(struct paper_render* render)
 	slot_img2->widget = (struct paper_widget*)image_widget2;
 	paper_overlay_add_slot(overlay, slot_img2);
 
-	std::wstring button_str = L"Consolas";
+	
 	struct paper_color text_color = { 1.0f, 0.1f, 0.0f, 1.0f };
     struct paper_font* font = paper_font_create(L"微软雅黑", 48.0f, L"zh-cn");
-	struct paper_widget_text* text_widget = paper_widget_text_new(nullptr, &text_color, font, button_str.c_str(), (uint32)button_str.length());
+	text_widget = paper_widget_text_new(nullptr, &text_color, font, button_str.c_str(), (uint32)button_str.length());
     struct paper_font_metrics metrics;
     paper_font_get_metrics(text_widget->text_font, button_str.c_str(), (uint32)button_str.length(), &metrics);
 	//paper_widget_set_size((struct paper_widget*)text_widget, metrics.width, metrics.height);

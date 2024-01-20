@@ -75,12 +75,30 @@ extern "C"
 	PAPER_API int32 paper_event_run(struct paper_event* event);
 
 	PAPER_API uint_ptr paper_event_handle(struct paper_event* event);
+
+	PAPER_API void paper_event_enable_main_looper();
+
 	/*分发事件，调用此函数进行阻塞式事件循环*/
 	PAPER_API int32 paper_event_dispatch();
 	/*设置窗口事件处理回调*/
 	PAPER_API void paper_set_window_event_cb(handle_event_cb cb);
 
 	PAPER_API handle_event_cb paper_get_event_cb(void);
+
+
+	/*循环体，每一个线程只有一个循环*/
+	typedef void(*LooperInvokeCb)(void* param);
+	struct paper_looper;
+
+	PAPER_API struct paper_looper* paper_looper_new();
+
+	PAPER_API void paper_looper_free(struct paper_looper* looper);
+
+	/*获取主循环体*/
+	PAPER_API struct paper_looper* paper_get_main_looper();
+
+	/*使用循环体调用操作，一般用于异步更新UI*/
+	PAPER_API int32 paper_looper_invoke(struct paper_looper* looper, LooperInvokeCb cb, void* params);
 
 	//PAPER_API LRESULT CALLBACK handle_windows_message(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #ifdef __cplusplus
