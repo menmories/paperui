@@ -211,11 +211,13 @@ void paper_widget_image_paint(struct paper_widget_image* widget, struct paper_re
 	//rcpaint == ¿É»æÖÆÇøÓò
 	assert(widget);
 	struct paper_widget* base = (struct paper_widget*)widget;
-	paper_render_draw_image(render, widget->image,
+	/*paper_render_draw_image(render, widget->image,
 		rcpaint->left,
 		rcpaint->top,
 		rcpaint->right - rcpaint->left,
-		rcpaint->bottom - rcpaint->top);
+		rcpaint->bottom - rcpaint->top);*/
+	paper_render_draw_image_rect(render, widget->image, rcpaint);
+	//paper_render_draw_image_flip(render, widget->image, rcpaint);
 }
 
 void paper_widget_image_free(struct paper_widget_image* widget)
@@ -263,6 +265,19 @@ void paper_widget_text_set(struct paper_widget_text* textwidget, const wchar_t* 
 	textwidget->text_len = len;
 }
 
+void paper_widget_text_set_text(struct paper_widget_text* textwidget, const wchar_t* text, uint32 len)
+{
+	textwidget->text = realloc(textwidget->text, len + 2);
+	wmemcpy(textwidget->text, text, len);
+	textwidget->text[len] = L'\0';
+	textwidget->text_len = len;
+}
+
+PAPER_API void paper_widget_text_set_font(struct paper_widget_text* textWidget, struct paper_font* font)
+{
+	textWidget->text_font = font;
+}
+
 void paper_widget_text_free(struct paper_widget_text* textwidget)
 {
 	free(textwidget->text);
@@ -270,7 +285,7 @@ void paper_widget_text_free(struct paper_widget_text* textwidget)
 	free(textwidget);
 }
 
-struct paper_button* paper_button_new(struct paper_widget_init_struct* init, struct paper_render* render, const wchar_t* text, uint32 len)
+struct paper_button* paper_button_new(struct paper_widget_init_struct* init, const wchar_t* text, uint32 len)
 {
 	struct paper_button* button = (struct paper_button*)malloc(sizeof(struct paper_button));
 	if (!button)
@@ -287,8 +302,9 @@ struct paper_button* paper_button_new(struct paper_widget_init_struct* init, str
 	widget->on_mouse_enter = (paper_event_mouse_enter_cb)paper_button_on_mouseenter;
 	widget->on_mouse_leave = (paper_event_mouse_leave_cb)paper_button_on_mouseleave;
 	widget->on_mousebutton = (paper_event_mousebutton_cb)paper_button_on_mousebutton;
-
 	button->current_brush = button->normal_brush;
+	paper_widget_text_set_text((struct paper_widget_text*)button, text, len);
+	paper_widget_text_set_font((struct paper_widget_text*)button, paper_get_default_font());
 	return button;
 }
 
@@ -298,7 +314,7 @@ void paper_button_paint(struct paper_button* button, struct paper_render* render
 	struct paper_render* comp_render = paper_render_create_compatible(render, paper_rect_get_width(rcpaint), paper_rect_get_height(rcpaint));
 	paper_render_begin_draw(comp_render, &clearColor);
 	//paint background
-	paper_render_fill_rectangle(render, rcpaint, button->current_brush);
+	//paper_render_fill_rectangle(render, rcpaint, button->current_brush);
 	
 	//paint text
 	paper_widget_text_paint((struct paper_widget_text*)button, comp_render, rcpaint);
@@ -639,7 +655,7 @@ void paper_widget_queue_free(struct paper_widget_queue* widget_queue)
 	{
 		struct paper_widget* temp = widget;
 		widget = widget->next;
-		free(temp);
+		temp->free_widget(temp);
 	}
 	free(widget_queue);
 }

@@ -50,6 +50,8 @@ extern "C"
 	/*当不再使用渲染器时可使用此函数销毁渲染器*/
 	PAPER_API void paper_render_destroyenv(void);
 
+	PAPER_API struct paper_font* paper_get_default_font();
+
 	/*从本地HWND窗口句柄创建一个渲染器*/
 	PAPER_API struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height);
 
@@ -75,10 +77,14 @@ extern "C"
 
 	/*绘制一张图片，使用输入的坐标来作为绘制位置*/
 	PAPER_API void paper_render_draw_image(struct paper_render* render, struct paper_image* image, int32 x, int32 y, uint32 width, uint32 height);
+
+	PAPER_API void paper_render_draw_image_rect(struct paper_render* render, struct paper_image* image, const struct paper_rect* rect);
 	/*绘制一张图片，以0作为X和Y坐标*/
 	PAPER_API void paper_render_draw_image2(struct paper_render* render, struct paper_image* image, uint32 width, uint32 height);
 	/*绘制一张图片，绘制的坐标为0，绘制的区域采用render的大小*/
 	PAPER_API void paper_render_draw_image3(struct paper_render* render, struct paper_image* image);
+
+	PAPER_API void paper_render_draw_image_flip(struct paper_render* render, struct paper_image* image, const struct paper_rect* rect);
 
 	/*绘制一段字符文本*/
 	PAPER_API void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len,

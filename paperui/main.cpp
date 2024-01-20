@@ -313,7 +313,7 @@ void init_control(struct paper_render* render)
 
 	
 	struct paper_color text_color = { 1.0f, 0.1f, 0.0f, 1.0f };
-    struct paper_font* font = paper_font_create(L"微软雅黑", 48.0f, L"zh-cn");
+    struct paper_font* font = paper_get_default_font(); //paper_font_create(L"微软雅黑", 48.0f, L"zh-cn");
 	text_widget = paper_widget_text_new(nullptr, &text_color, font, button_str.c_str(), (uint32)button_str.length());
     struct paper_font_metrics metrics;
     paper_font_get_metrics(text_widget->text_font, button_str.c_str(), (uint32)button_str.length(), &metrics);
@@ -325,4 +325,16 @@ void init_control(struct paper_render* render)
 	slot_text->valign = paper_valign_center;
 	slot_text->widget = (struct paper_widget*)text_widget;
 	paper_overlay_add_slot(overlay, slot_text);
+
+    /*std::wstring buttonName = L"按钮1";
+    struct paper_button* button1 = paper_button_new(nullptr, buttonName.c_str(), buttonName.length());
+
+    paper_widget_set_size((struct paper_widget*)button1, 110, 27);
+	struct paper_overlay_slot* slot_button = paper_overlay_slot_new();
+    slot_button->halign = paper_halign_center;
+    slot_button->valign = paper_valign_center;
+    slot_button->widget = (struct paper_widget*)button1;
+	paper_overlay_add_slot(overlay, slot_button);*/
+
+
 }

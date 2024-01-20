@@ -73,6 +73,7 @@ static paper_memorypool* render_pool = nullptr;
 static paper_memorypool* image_pool = nullptr;
 static paper_memorypool* font_pool = nullptr;
 static paper_memorypool* brush_pool = nullptr;
+static struct paper_font* default_font = nullptr;
 
 int paper_render_initenv(void)
 {
@@ -103,17 +104,26 @@ int paper_render_initenv(void)
 	image_pool = paper_memorypool_create(sizeof(struct paper_image));
 	font_pool = paper_memorypool_create(sizeof(struct paper_font));
 	brush_pool = paper_memorypool_create(sizeof(struct paper_brush));
+	default_font = paper_font_create(L"微软雅黑", 12, L"zh-cn");
 	return 0;
 }
 
 void paper_render_destroyenv(void)
 {
+	paper_font_free(default_font);		//优先释放默认资源
+
+
 	SafeRelease(&DWriteFactory);
 	SafeRelease(&Direct2DFactory);
 	paper_memorypool_free(render_pool);
 	paper_memorypool_free(image_pool);
 	paper_memorypool_free(font_pool);
 	paper_memorypool_free(brush_pool);
+}
+
+struct paper_font* paper_get_default_font()
+{
+	return default_font;
 }
 
 struct paper_render* paper_render_create(void* wnd, uint32 width, uint32 height)
@@ -193,6 +203,12 @@ void paper_render_draw_image(struct paper_render* render, struct paper_image* im
 	render->renderTarget->DrawBitmap(image->bitmap, destRect);
 }
 
+PAPER_API void paper_render_draw_image_rect(struct paper_render* render, struct paper_image* image, const struct paper_rect* rect)
+{
+	D2D1_RECT_F destRect = D2D1::RectF((float)rect->left, (float)rect->top, (float)(rect->right), (float)(rect->bottom));
+	render->renderTarget->DrawBitmap(image->bitmap, destRect);
+}
+
 void paper_render_draw_image2(struct paper_render* render, struct paper_image* image, uint32 width, uint32 height)
 {
 	// 指定要绘制的图片的目标区域大小
@@ -206,6 +222,26 @@ void paper_render_draw_image3(struct paper_render* render, struct paper_image* i
 	D2D1_SIZE_F size = render->renderTarget->GetSize();
 	D2D1_RECT_F destRect = D2D1::RectF(0.0f, 0.0f, size.width, size.height);
 	render->renderTarget->DrawBitmap(image->bitmap, destRect);
+}
+
+void paper_render_draw_image_flip(struct paper_render* render, struct paper_image* image, const struct paper_rect* rect)
+{
+	D2D1_SIZE_F bitmapSize = image->bitmap->GetSize();
+
+	//// Create a matrix to apply the flipping transformation
+	//D2D1_MATRIX_3X2_F flipMatrix = D2D1::Matrix3x2F::Scale(1.0f, -1.0f, D2D1::Point2F(0.0f, bitmapSize.height));
+
+	//// Apply the flipping transformation to the render target
+	//render->renderTarget->SetTransform(flipMatrix);
+
+	//// Draw the flipped bitmap
+	//render->renderTarget->DrawBitmap(image->bitmap, D2D1::RectF((float)rect->left, (float)rect->top, (float)paper_rect_get_width(rect), (float)paper_rect_get_height(rect)));
+
+	float opacity = 1.0f;
+	D2D1_MATRIX_3X2_F flipTransform = D2D1::Matrix3x2F::Scale(-1.0f, 1.0f, D2D1::Point2F(bitmapSize.width / 2.0f, 0.0f));
+	render->renderTarget->SetTransform(flipTransform);
+	render->renderTarget->DrawBitmap(image->bitmap, D2D1::RectF((float)rect->left, (float)rect->top, (float)paper_rect_get_width(rect), (float)paper_rect_get_height(rect)),
+		opacity, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
 }
 
 void paper_render_draw_text(struct paper_render* render, const TCHAR* szText, uint32 len, const struct paper_rect* rect, struct paper_font* font, struct paper_brush* brush)
