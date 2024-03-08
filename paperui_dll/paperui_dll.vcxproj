@@ -156,6 +156,10 @@
     <ClInclude Include="..\paperui\paper_event.h" />
     <ClInclude Include="..\paperui\paper_memorypool.h" />
     <ClInclude Include="..\paperui\paper_render.h" />
+    <ClInclude Include="..\paperui\paper_string.h" />
+    <ClInclude Include="..\paperui\paper_thread.h" />
+    <ClInclude Include="..\paperui\paper_timer.h" />
+    <ClInclude Include="..\paperui\paper_util.h" />
     <ClInclude Include="..\paperui\paper_vector.h" />
     <ClInclude Include="..\paperui\paper_widget.h" />
     <ClInclude Include="..\paperui\paper_window.h" />
@@ -170,6 +174,10 @@
     <ClCompile Include="..\paperui\paper_event.c" />
     <ClCompile Include="..\paperui\paper_memorypool.c" />
     <ClCompile Include="..\paperui\paper_render.cpp" />
+    <ClCompile Include="..\paperui\paper_string.c" />
+    <ClCompile Include="..\paperui\paper_thread.cpp" />
+    <ClCompile Include="..\paperui\paper_timer.cpp" />
+    <ClCompile Include="..\paperui\paper_util.c" />
     <ClCompile Include="..\paperui\paper_vector.c" />
     <ClCompile Include="..\paperui\paper_widget.c" />
     <ClCompile Include="..\paperui\paper_window.c" />

@@ -8,7 +8,7 @@
 
 struct paper_looper
 {
-	DWORD dwThreadId;
+	uint32 threadId;
 };
 
 #define WM_LOOPER (WM_USER + 100)
@@ -129,7 +129,7 @@ struct paper_looper* paper_looper_new()
 	struct paper_looper* looper = (struct paper_looper*)malloc(sizeof(struct paper_looper));
 	if (looper)
 	{
-		looper->dwThreadId = GetCurrentThreadId();
+		looper->threadId = GetCurrentThreadId();
 	}
 	return looper;
 }
@@ -149,7 +149,7 @@ int32 paper_looper_invoke(struct paper_looper* looper, LooperInvokeCb cb, void* 
 	assert(cb && looper);
 	while (1)
 	{
-		DWORD dwRet = PostThreadMessage(looper->dwThreadId, WM_LOOPER, (WPARAM)cb, (LPARAM)params);
+		DWORD dwRet = PostThreadMessage(looper->threadId, WM_LOOPER, (WPARAM)cb, (LPARAM)params);
 		if (dwRet == TRUE)
 		{
 			return TRUE;

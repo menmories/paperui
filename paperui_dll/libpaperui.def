@@ -1,9 +1,10 @@
 LIBRARY libpaperui
 EXPORTS 
-paper_window_create				
+paper_window_new	
+paper_window_new2			
+paper_window_new3
 paper_window_center_screen		
 paper_window_show				
 paper_application_init			
 paper_application_run			
-paper_window_create2			
-paper_window_create3
+

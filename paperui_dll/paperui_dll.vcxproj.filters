@@ -54,6 +54,18 @@
     <ClInclude Include="..\paperui\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\paperui\paper_string.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\paperui\paper_thread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\paperui\paper_timer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\paperui\paper_util.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -87,6 +99,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\paperui\pugixml.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\paperui\paper_thread.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\paperui\paper_timer.cpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\paperui\paper_string.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\paperui\paper_util.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

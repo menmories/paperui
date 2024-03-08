@@ -51,6 +51,15 @@
     <ClCompile Include="paper_thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="paper_timer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="paper_string.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="paper_util.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="paper_define.h">
@@ -93,6 +102,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="paper_thread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="paper_timer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="paper_string.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="paper_util.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

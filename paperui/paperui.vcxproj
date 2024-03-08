@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -153,7 +153,10 @@
     <ClCompile Include="paper_event.c" />
     <ClCompile Include="paper_memorypool.c" />
     <ClCompile Include="paper_render.cpp" />
+    <ClCompile Include="paper_string.c" />
     <ClCompile Include="paper_thread.cpp" />
+    <ClCompile Include="paper_timer.cpp" />
+    <ClCompile Include="paper_util.c" />
     <ClCompile Include="paper_vector.c" />
     <ClCompile Include="paper_widget.c" />
     <ClCompile Include="paper_window.c" />
@@ -167,7 +170,10 @@
     <ClInclude Include="paper_event.h" />
     <ClInclude Include="paper_memorypool.h" />
     <ClInclude Include="paper_render.h" />
+    <ClInclude Include="paper_string.h" />
     <ClInclude Include="paper_thread.h" />
+    <ClInclude Include="paper_timer.h" />
+    <ClInclude Include="paper_util.h" />
     <ClInclude Include="paper_vector.h" />
     <ClInclude Include="paper_widget.h" />
     <ClInclude Include="paper_window.h" />
