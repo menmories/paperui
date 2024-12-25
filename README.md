@@ -1,8 +1,4 @@
-# paperui
-C风格编写的GUI
+## paperui
 
-内部基于Direct2D实现
-
-
-
+这是一款基于Direct2D编写的Gui库
 
