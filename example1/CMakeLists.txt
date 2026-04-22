@@ -62,18 +62,11 @@ if(MSVC)
 endif(MSVC)
 
 # 静态库
-# include_directories(
-#     include
-#     ../thirdparty/glfw/include
-# )
-
-# link_directories(
-#     ../thirdparty/glfw/lib/Debug/
-# )
-
-link_libraries(
-    # ws2_32.lib
+include_directories(
+    include
+    "${PROJECT_SOURCE_DIR}/paperui/include"
 )
+
 
 # add_executable(openssldemo WIN32 ${HEADER_FILES} ${SOURCE_FILES})
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
@@ -81,30 +74,25 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 
 # 动态库
-target_include_directories(${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    "${PROJECT_SOURCE_DIR}/paperui/include"
-)
+# target_include_directories(${PROJECT_NAME} PRIVATE
+#     "${CMAKE_CURRENT_SOURCE_DIR}/include"
+#     "${PROJECT_SOURCE_DIR}/paperui/include"
+# )
 
-
-set(BUILD_DIR "${CMAKE_SOURCE_DIR}/build")
-message(build_dir="${BUILD_DIR}")
 target_link_directories(${PROJECT_NAME} PRIVATE
-    "${BUILD_DIR}/${PROJECT_NAME}/Debug/"
+    
 )
-
-message("${BUILD_DIR}/${PROJECT_NAME}/Debug/")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     paperui
 )
 
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/build/${PROJECT_NAME}/Debug/paperui.dll" "${CMAKE_SOURCE_DIR}/build/example1/Debug/"
-    COMMAND_EXPAND_LISTS
-)
+# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/build/${PROJECT_NAME}/Debug/paperui.dll" "${CMAKE_SOURCE_DIR}/build/example1/Debug/"
+#     COMMAND_EXPAND_LISTS
+# )
 
-# Visual Studio中的调试工作目录（即exe程序内的“./”所指的目录，仅在VS调试中有效）
-set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/example1/Debug")
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME})
+# # Visual Studio中的调试工作目录（即exe程序内的“./”所指的目录，仅在VS调试中有效）
+# set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/example1/Debug")
+# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME})

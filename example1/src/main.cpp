@@ -11,12 +11,12 @@ public:
         : m_font("Microsoft YaHei", 16)
         , m_brush(CColor(255, 10, 0))
     {
-        std::string image1 = "F:/i/keai/113969089_p1.jpg";
+        std::string image1 = "E:/GitHub/paperui/images/12dd.jpg";
         if (!m_bitmap.Load(image1.c_str()))
         {
             fprintf(stderr, "Load image file %s failed.\n", image1.c_str());
         }
-        Resize(m_bitmap.Width() / 3, m_bitmap.Height() / 3);
+        Resize(m_bitmap.Width() / 2, m_bitmap.Height() / 2);
     }
     ~MainWindow()
     {
@@ -25,9 +25,9 @@ public:
 
     virtual void OnPaint(CPainter& painter)
     {
-		/*CRect clientRect = this->GetRect();
+		CRect clientRect = this->GetRect();
 		painter.DrawBitmap(m_bitmap, clientRect);
-		painter.DrawText(clientRect, "Hello World!", m_font, m_brush);*/
+		painter.DrawText(clientRect, "Hello World!", m_font, m_brush);
     }
 
 private:

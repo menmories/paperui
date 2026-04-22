@@ -121,11 +121,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/build/paperui/Debug/paperui.dll" "${CMAKE_SOURCE_DIR}/build/example1/Debug/"
-    COMMAND_EXPAND_LISTS
-)
-
-
 
 
